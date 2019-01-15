@@ -6,6 +6,8 @@ from common.numpy_fast import clip
 from selfdrive.car.honda import hondacan
 from selfdrive.car.honda.values import AH, CruiseButtons, CAR
 from selfdrive.can.packer import CANPacker
+import zmq
+
 
 def actuator_hystereses(brake, braking, brake_steady, v_ego, car_fingerprint):
   # hyst params... TODO: move these to VehicleParams
@@ -63,7 +65,11 @@ class CarController(object):
     self.enable_camera = enable_camera
     self.packer = CANPacker(dbc_name)
     self.new_radar_config = False
-    self.counter_last = 0
+    self.counter = 0
+    self.lincontext = zmq.Context()
+    self.linsocket = self.lincontext.socket(zmq.PUB)
+    self.linsocket.bind("tcp://127.0.0.1:8099")
+    self.linsocket.send(bytearray([0xFF,0xFF,0xFF,0xFF])) #initializes the LIN pin at 9600 with even parity
 
   def update(self, sendcan, enabled, CS, frame, actuators, \
              pcm_speed, pcm_override, pcm_cancel_cmd, pcm_accel, \
@@ -137,33 +143,47 @@ class CarController(object):
 
     # Send steering command.
     if CS.CP.carFingerprint in (CAR.ACCORD_2016):
-      if apply_steer != 0:
+      if lkas_active:
         chksm_on = 32
         lkas_on = 1
         lkas_off = 0
         chksm_off = 0
+        big_steer = (apply_steer >> 5) & 0xF
+        little_steer =  apply_steer - (big_steer << 5)
+        # steer starts from 0, goes to 15, drops to -16 then up to -1
+        if little_steer > 15:
+          little_steer = little_steer - 32
       else:
         chksm_on = 0
         lkas_on = 0
         lkas_off = 1
         chksm_off = 64
-      big_steer = (apply_steer >> 5) & 0xF
-      little_steer =  apply_steer - (big_steer << 5)
-      # steer starts from 0, goes to 15, drops to -16 then up to -1
-      if little_steer > 15:
-        little_steer = little_steer - 32
+        big_steer = 0
+        little_steer = 0
+      # if apply_steer != 0:#fix this... if no apply_steer but still engaged, it needs to keep lkas_on as 1
+      #   chksm_on = 32
+      #   lkas_on = 1
+      #   lkas_off = 0
+      #   chksm_off = 0
+      # else:
+        # chksm_on = 0
+        # lkas_on = 0
+        # lkas_off = 1
+        # chksm_off = 64
+
       # accord serial has a 1 bit counter, flipping every refresh
-      if self.counter_last == 0:
+      if self.counter == 0:
         self.counter = 1
-        self.counter_last = 1
       else:
         self.counter = 0
-        self.counter_last = 0
-      chksm = 512 - ((idx + little_steer + big_steer + chksm_on + chksm_off + lkas_on + lkas_off + 256) % 512)
-      can_sends.append(hondacan.create_steering_control_serial(self.packer, counter, big_steer, lkas_on, little_steer, lkas_off, chksm))
+
+      chksm = 512 - ((little_steer + big_steer + chksm_on + chksm_off + lkas_on + lkas_off + 256) % 512)#removed idx from addition  list
+      #can_sends.append(hondacan.create_steering_control_serial(self.packer, self.counter, big_steer, lkas_on, little_steer, lkas_off, chksm))
+      self.linsocket.send(bytearray(hondacan.create_steering_control_serial(self.counter, big_steer, lkas_on, little_steer, lkas_off, chksm)))
     else:
       idx = frame % 4
-      can_sends.append(hondacan.create_steering_control(self.packer, apply_steer, lkas_active, CS.CP.carFingerprint, idx))
+      #can_sends.append(hondacan.create_steering_control(self.packer, apply_steer, lkas_active, CS.CP.carFingerprint, idx))
+      #above is commented bc it should not happen on this branch
 
     # Send dashboard UI commands.
     if (frame % 10) == 0:
@@ -194,10 +214,10 @@ class CarController(object):
       else:
         radar_send_step = 5
 
-      if (frame % radar_send_step) == 0:
+      if (frame % radar_send_step) == 0:  #removed radarmod
         idx = (frame/radar_send_step) % 4
         if not self.new_radar_config:  # only change state once
           self.new_radar_config = car.RadarState.Error.wrongConfig in radar_error
-        can_sends.extend(hondacan.create_radar_commands(CS.v_ego, CS.CP.carFingerprint, self.new_radar_config, idx))
+        can_sends.extend(hondacan.create_radar_commands(self.packer, CS.v_ego, CS.CP.carFingerprint, self.new_radar_config, idx))
 
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())

@@ -29,16 +29,17 @@ def calc_cruise_offset(offset, speed):
 def get_can_signals(CP):
 # this function generates lists for signal, messages and initial values
   signals = [
-      ("XMISSION_SPEED", "ENGINE_DATA", 0),
       ("WHEEL_SPEED_FL", "WHEEL_SPEEDS", 0),
       ("WHEEL_SPEED_FR", "WHEEL_SPEEDS", 0),
       ("WHEEL_SPEED_RL", "WHEEL_SPEEDS", 0),
       ("WHEEL_SPEED_RR", "WHEEL_SPEEDS", 0),
       ("STEER_ANGLE", "STEERING_SENSORS", 0),
       ("STEER_ANGLE_RATE", "STEERING_SENSORS", 0),
-      ("STEER_TORQUE_SENSOR", "STEER_STATUS", 0),
-      ("LEFT_BLINKER", "SCM_FEEDBACK", 0),
-      ("RIGHT_BLINKER", "SCM_FEEDBACK", 0),
+      # ("STEER_TORQUE_SENSOR", "STEER_STATUS", 0)
+      # ("LEFT_BLINKER", "SCM_FEEDBACK", 0),
+      # ("RIGHT_BLINKER", "SCM_FEEDBACK", 0),
+      ("LEFT_BLINKER", "SCM_COMMANDS", 0),
+      ("RIGHT_BLINKER", "SCM_COMMANDS", 0),
       ("GEAR", "GEARBOX", 0),
       ("BRAKE_ERROR_1", "STANDSTILL", 1),
       ("BRAKE_ERROR_2", "STANDSTILL", 1),
@@ -50,21 +51,21 @@ def get_can_signals(CP):
       ("ESP_DISABLED", "VSA_STATUS", 1),
       ("HUD_LEAD", "ACC_HUD", 0),
       ("USER_BRAKE", "VSA_STATUS", 0),
-      ("STEER_STATUS", "STEER_STATUS", 5),
+      # ("STEER_STATUS", "STEER_STATUS", 5),
       ("GEAR_SHIFTER", "GEARBOX", 0),
       ("PEDAL_GAS", "POWERTRAIN_DATA", 0),
       ("CRUISE_SETTING", "SCM_BUTTONS", 0),
-      ("ACC_STATUS", "POWERTRAIN_DATA", 0),
+      # ("ACC_STATUS", "POWERTRAIN_DATA", 0),
       ("XMISSION_SPEED", "POWERTRAIN_DATA", 0),
       ("XMISSION_SPEED", "POWERTRAIN_DATA_2", 0),
       ("CAR_GAS", "GAS_PEDAL", 0),
   ]
 
   checks = [
-      ("ENGINE_DATA", 100),
+      # ("ENGINE_DATA", 100),
       ("WHEEL_SPEEDS", 50),
       ("STEERING_SENSORS", 100),
-      ("SCM_FEEDBACK", 10),
+    #  ("SCM_FEEDBACK", 10),
       ("GEARBOX", 100),
       ("STANDSTILL", 50),
       ("SEATBELT_STATUS", 10),
@@ -73,7 +74,7 @@ def get_can_signals(CP):
       ("POWERTRAIN_DATA_2", 100),
       ("VSA_STATUS", 50),
       ("SCM_BUTTONS", 25),
-      ("CAR_GAS", 100),
+      # ("CAR_GAS", 100),
   ]
 
   if CP.radarOffCan:
@@ -139,7 +140,8 @@ class CarState(object):
   def __init__(self, CP):
     self.CP = CP
     self.can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
-    self.shifter_values = self.can_define.dv["GEARBOX"]["GEAR_SHIFTER"]
+    self.shifter_values = 8
+    # self.shifter_values = self.can_define.dv["GEARBOX"]["GEAR_SHIFTER"]
 
     self.user_gas, self.user_gas_pressed = 0., 0
     self.brake_switch_prev = 0
@@ -210,17 +212,17 @@ class CarState(object):
 
     # calc best v_ego estimate, by averaging two opposite corners
     speed_factor = SPEED_FACTOR[self.CP.carFingerprint]
-    self.v_wheel_fl = cp.vl["WHEEL_SPEEDS"]['WHEEL_SPEED_FL'] * CV.KPH_TO_MS * speed_factor
-    self.v_wheel_fr = cp.vl["WHEEL_SPEEDS"]['WHEEL_SPEED_FR'] * CV.KPH_TO_MS * speed_factor
-    self.v_wheel_rl = cp.vl["WHEEL_SPEEDS"]['WHEEL_SPEED_RL'] * CV.KPH_TO_MS * speed_factor
-    self.v_wheel_rr = cp.vl["WHEEL_SPEEDS"]['WHEEL_SPEED_RR'] * CV.KPH_TO_MS * speed_factor
+    self.v_wheel_fl = cp.vl["WHEEL_SPEEDS"]['WHEEL_SPEED_FL']  * speed_factor #WHEEL SPEED is already m/s
+    self.v_wheel_fr = cp.vl["WHEEL_SPEEDS"]['WHEEL_SPEED_FR'] * speed_factor
+    self.v_wheel_rl = cp.vl["WHEEL_SPEEDS"]['WHEEL_SPEED_RL']  * speed_factor
+    self.v_wheel_rr = cp.vl["WHEEL_SPEEDS"]['WHEEL_SPEED_RR']  * speed_factor
     self.v_wheel = (self.v_wheel_fl+self.v_wheel_fr+self.v_wheel_rl+self.v_wheel_rr)/4.
 
     # blend in transmission speed at low speed, since it has more low speed accuracy
     self.v_weight = interp(self.v_wheel, v_weight_bp, v_weight_v)
     if self.CP.carFingerprint in (CAR.ACCORD_2016):
-      speed = (1. - self.v_weight) * cp.vl["POWERTRAIN_DATA_2"]['XMISSION_SPEED'] * CV.KPH_TO_MS * speed_factor + \
-      self.v_weight * self.v_wheel
+      speed = (1. - self.v_weight) * cp.vl["POWERTRAIN_DATA_2"]['XMISSION_SPEED']  * speed_factor + \
+      self.v_weight * self.v_wheel  # Xmission speed already in m/s
     else:
       speed = (1. - self.v_weight) * cp.vl["ENGINE_DATA"]['XMISSION_SPEED'] * CV.KPH_TO_MS * speed_factor + \
         self.v_weight * self.v_wheel
@@ -251,9 +253,9 @@ class CarState(object):
       self.left_blinker_on = 0
       self.right_blinker_on = 0
     else:
-      self.blinker_on = cp.vl["SCM_FEEDBACK"]['LEFT_BLINKER'] or cp.vl["SCM_FEEDBACK"]['RIGHT_BLINKER']
-      self.left_blinker_on = cp.vl["SCM_FEEDBACK"]['LEFT_BLINKER']
-      self.right_blinker_on = cp.vl["SCM_FEEDBACK"]['RIGHT_BLINKER']
+      self.blinker_on = cp.vl["SCM_COMMANDS"]['LEFT_BLINKER'] or cp.vl["SCM_COMMANDS"]['RIGHT_BLINKER']
+      self.left_blinker_on = cp.vl["SCM_COMMANDS"]['LEFT_BLINKER']
+      self.right_blinker_on = cp.vl["SCM_COMMANDS"]['RIGHT_BLINKER']
 
     if self.CP.carFingerprint in (CAR.CIVIC, CAR.ODYSSEY, CAR.CRV_5G, CAR.ACCORD, CAR.ACCORD_15, CAR.ACCORDH, CAR.CIVIC_HATCH):
       self.park_brake = cp.vl["EPB_STATUS"]['EPB_STATE'] != 0
@@ -272,16 +274,17 @@ class CarState(object):
 
     self.pedal_gas = cp.vl["POWERTRAIN_DATA"]['PEDAL_GAS']
     # crv doesn't include cruise control
-    if self.CP.carFingerprint in (CAR.CRV, CAR.ODYSSEY, CAR.ACURA_RDX, CAR.RIDGELINE, CAR.PILOT_2019):
+    if self.CP.carFingerprint in (CAR.CRV, CAR.ODYSSEY, CAR.ACURA_RDX, CAR.RIDGELINE, CAR.PILOT_2019, CAR.ACCORD_2016):
       self.car_gas = self.pedal_gas
     else:
       self.car_gas = cp.vl["GAS_PEDAL_2"]['CAR_GAS']
-      
+
     if self.CP.carFingerprint in (CAR.ACCORD_2016):
       self.steer_torque_driver = 0
-    if self.CP.carFingerprint in (CAR.ACCORD_2016):
-      self.steer_torque_driver = cp.vl["STEER_STATUS"]['STEER_TORQUE_SENSOR']
-    self.steer_override = abs(self.steer_torque_driver) > STEER_THRESHOLD[self.CP.carFingerprint]
+      self.steer_override = 0
+    # if self.CP.carFingerprint in (CAR.ACCORD_2016):
+    #   self.steer_torque_driver = cp.vl["STEER_STATUS"]['STEER_TORQUE_SENSOR']
+    # self.steer_override = abs(self.steer_torque_driver) > STEER_THRESHOLD[self.CP.carFingerprint]
 
     self.brake_switch = cp.vl["POWERTRAIN_DATA"]['BRAKE_SWITCH']
 

@@ -37,7 +37,7 @@ def create_brake_command(packer, apply_brake, pcm_override, pcm_cancel_cmd, chim
 
   values = {
     "COMPUTER_BRAKE": apply_brake,
-    "BRAKE_PUMP_REQUEST": pump_on,
+    # "BRAKE_PUMP_REQUEST": pump_on,
     "CRUISE_OVERRIDE": pcm_override,
     "CRUISE_FAULT_CMD": pcm_fault_cmd,
     "CRUISE_CANCEL_CMD": pcm_cancel_cmd,
@@ -62,18 +62,29 @@ def create_gas_command(packer, gas_amount, idx):
 
   return packer.make_can_msg("GAS_COMMAND", 0, values, idx)
 
-def create_steering_control_serial(packer, counter, big_steer, lkas_on, little_steer, lkas_off, chksm):
-  values = {
-    "BIG_STEER": big_steer,
-    "COUNTER": counter,
-    "LITTLE_STEER": little_steer,
-    "LKAS_ON": lkas_on,
-    "SET_1": 1,
-    "LKAS_OFF": lkas_off,
-    "SET_1_1": 1,
-    "FLIP": chksm,
-    }
-  return packer.make_can_msg("LKAS_SERIAL", 2, values)
+def create_steering_control_serial(counter, big_steer, lkas_on, little_steer, lkas_off, chksm):
+  datapack = [0x00, 0x00, 0x00, 0x00]
+# 128  64  32  16  8  4  2  1
+  datapack[0] = big_steer
+  datapack[0] =+ counter * 32
+  datapack[1] = little_steer
+  datapack[1] += (lkas_on * 32) + 128
+  datapack[2] = 128 + (lkas_off * 64)
+  datapack[3] = chksm
+
+  return datapack
+
+  # values = {
+  #   "BIG_STEER": big_steer,
+  #   "SERIAL_COUNTER": counter,
+  #   "LITTLE_STEER": little_steer,
+  #   "LKAS_ON": lkas_on,
+  #   "SET_1": 1,
+  #   "LKAS_OFF": lkas_off,
+  #   "SET_1_1": 1,
+  #   "SERIAL_CHECKSUM": chksm,
+  #   }
+  # return packer.make_can_msg("LKAS_SERIAL", 2, values)
 
 def create_steering_control(packer, apply_steer, lkas_active, car_fingerprint, idx):
   """Creates a CAN message for the Honda DBC STEERING_CONTROL."""
@@ -96,20 +107,20 @@ def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, idx):
     bus = 2
   else:
     acc_hud_values = {
-      'PCM_SPEED': pcm_speed * CV.MS_TO_KPH,
+      'PCM_SPEED': pcm_speed * CV.MS_TO_MPH,
       'PCM_GAS': hud.pcm_accel,
       'CRUISE_SPEED': hud.v_cruise,
       'ENABLE_MINI_CAR': hud.mini_car,
       'HUD_LEAD': hud.car,
-      'SET_ME_X03': 0x03,
-      'SET_ME_X03_2': 0x03,
-      'SET_ME_X01': 0x01,
+      # 'SET_ME_X03': 0x03,
+      # 'SET_ME_X03_2': 0x03,
+      # 'SET_ME_X01': 0x01,
     }
     commands.append(packer.make_can_msg("ACC_HUD", 0, acc_hud_values, idx))
 
   lkas_hud_values = {
-    'SET_ME_X41': 0x41,
-    'SET_ME_X48': 0x48,
+    # 'SET_ME_X41': 0x41,
+    #'SET_ME_X48': 0x48,
     'STEERING_REQUIRED': hud.steer_required,
     'SOLID_LANES': hud.lanes,
     'BEEP': hud.beep,
@@ -129,27 +140,25 @@ def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, idx):
   return commands
 
 
-def create_radar_commands(v_ego, car_fingerprint, new_radar_config, idx):
+def create_radar_commands(packer,v_ego, car_fingerprint, new_radar_config, idx):
   """Creates an iterable of CAN messages for the radar system."""
   commands = []
   v_ego_kph = np.clip(int(round(v_ego * CV.MS_TO_KPH)), 0, 255)
   speed = struct.pack('!B', v_ego_kph)
 
-  msg_0x300 = ("\xf9" + speed + "\x8a\xd0" +
-               ("\x20" if idx == 0 or idx == 3 else "\x00") +
-               "\x00\x00")
-  msg_0x301 = VEHICLE_STATE_MSG[car_fingerprint]
+  x300_values = {
+    'SET_ME_XF9': 0xf9,
+    'VEHICLE_SPEED': v_ego_kph,
+  }
+  x301_values = {
+    'SET_ME_0F18510': 0x0F18510,
+    'SET_ME_25A0000': 0x25A0000,
+  }
+  commands.append(packer.make_can_msg('VEHICLE_STATE', 1, x300_values, idx))
+  commands.append(packer.make_can_msg('VEHICLE_STATE2', 1, x301_values, idx))
+  # commands.append(make_can_msg(0x300, msg_0x300, idx_0x300, 1))
 
-  idx_0x301 = idx_0x300 = idx
-  if car_fingerprint == CAR.CIVIC:
-    idx_offset = 0xc if new_radar_config else 0x8   # radar in civic 2018 requires 0xc
-    idx_0x300 += idx_offset
-
-  if car_fingerprint == CAR.ACCORD_2016:
-    msg_0x301 += 0xc
-
-  commands.append(make_can_msg(0x300, msg_0x300, idx_0x300, 1))
-  commands.append(make_can_msg(0x301, msg_0x301, idx_0x301, 1))
+  # commands.append(make_can_msg(0x301, msg_0x301, idx_0x301, 1))
   return commands
 
 def spam_buttons_command(packer, button_val, idx):

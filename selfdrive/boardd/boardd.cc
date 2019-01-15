@@ -62,6 +62,9 @@ bool pigeon_needs_init;
 
 void pigeon_init();
 void *pigeon_thread(void *crap);
+void lin_send(void *s);
+void *lin_send_thread(void *crap);
+void lin_send_baud_and_parity();
 
 void *safety_setter_thread(void *s) {
   char *value;
@@ -457,6 +460,61 @@ void *can_health_thread(void *crap) {
   return NULL;
 }
 
+void *lin_send_thread(void *crap){
+  LOGD("start lin_send thread");
+
+  void *context = zmq_ctx_new();
+  void *subscriber = zmq_socket(context, ZMQ_SUB);
+  zmq_setsockopt(subscriber, ZMQ_SUBSCRIBE, "", 0);
+  zmq_connect(subscriber, "tcp://127.0.0.1:8099");
+
+  // run as fast as messages come in
+  while (!do_exit) {
+    lin_send(subscriber);
+  }
+  return NULL;
+}
+
+void lin_send(void *s) {
+
+  int err;
+  uint8_t  localdata[0x05];
+  localdata[0x00] = 2;
+  zmq_msg_t msg;
+  zmq_msg_init(&msg);
+  err = zmq_msg_recv(&msg, s, 0);
+  assert(err >= 0);  //need to send the data  ,, set baud and parity
+  int sent;
+  memcpy(zmq_msg_data(&msg),&localdata[1],4);
+  zmq_msg_close(&msg);
+
+  if(localdata[1] != 0xFF){
+    LOGW("Sending data that is not 0xFF on localdatqa[1]");
+    pthread_mutex_lock(&usb_lock);
+    err = libusb_bulk_transfer(dev_handle, 2, (uint8_t*)&localdata, 5, &sent, TIMEOUT);
+    pthread_mutex_unlock(&usb_lock);
+  } else {
+    if(localdata[2] == 0xFF && localdata[3] == 0xFF & localdata[4] == 0xFF ) lin_send_baud_and_parity();
+  }
+
+
+// int libusb_nsfer	(	struct libusb_device_handle * 	dev_handle,
+// unsigned char 	endpoint,
+// unsigned char * 	data,
+// int 	length,
+// int * 	transferred,
+// unsigned int 	timeout
+// )
+}
+
+void lin_send_baud_and_parity(){
+  int err;
+  pthread_mutex_lock(&usb_lock);
+  err = libusb_control_transfer(dev_handle, 0xc0, 0xe2, 2, 1, NULL, 0, TIMEOUT);  //5th field... 1 == even parity.
+  err = libusb_control_transfer(dev_handle, 0xc0, 0xe4, 2, 0x20, NULL, 0, TIMEOUT);//0x20 = 9600bps / 300
+  pthread_mutex_unlock(&usb_lock);
+}
+
 #define pigeon_send(x) _pigeon_send(x, sizeof(x)-1)
 
 void hexdump(unsigned char *d, int l) {
@@ -666,6 +724,10 @@ int main() {
                        thermal_thread, NULL);
   assert(err == 0);
 
+  pthread_t lin_send_thread_handle;
+  err = pthread_create(&lin_send_thread_handle, NULL,
+                      lin_send_thread, NULL);  //added for LIN support
+
   // join threads
 
   err = pthread_join(thermal_thread_handle, NULL);
@@ -678,6 +740,9 @@ int main() {
   assert(err == 0);
 
   err = pthread_join(can_health_thread_handle, NULL);
+  assert(err == 0);
+
+  err = pthread_join(lin_send_thread_handle, NULL); //added for LIN Send support
   assert(err == 0);
 
   //while (!do_exit) usleep(1000);

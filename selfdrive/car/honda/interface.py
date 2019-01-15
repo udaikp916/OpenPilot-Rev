@@ -221,7 +221,7 @@ class CarInterface(object):
       ret.longitudinalKiV = [0.18, 0.12]
 
     elif candidate in (CAR.ACCORD_2016):
-      stop_and_go = True
+      stop_and_go = False
       ret.mass = 3279. * CV.LB_TO_KG + std_cargo
       ret.wheelbase = 2.83
       ret.centerToFront = ret.wheelbase * 0.39
@@ -232,6 +232,7 @@ class CarInterface(object):
       ret.longitudinalKpV = [1.2, 0.8, 0.5]
       ret.longitudinalKiBP = [0., 35.]
       ret.longitudinalKiV = [0.18, 0.12]
+      ret.radarOffCan = False 
 
     elif candidate == CAR.ACURA_ILX:
       stop_and_go = False
@@ -421,8 +422,8 @@ class CarInterface(object):
     # gear shifter lever
     ret.gearShifter = self.CS.gear_shifter
 
-    ret.steeringTorque = self.CS.steer_torque_driver
-    ret.steeringPressed = self.CS.steer_override
+    ret.steeringTorque = 0 #ret.steeringTorque = self.CS.steer_torque_driver
+    ret.steeringPressed = False #ret.steeringPressed = self.CS.steer_override
 
     # cruise state
     ret.cruiseState.enabled = self.CS.pcm_acc_status != 0
