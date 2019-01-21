@@ -59,12 +59,12 @@ class CarInterface(object):
     std_cargo = 136
 
     if candidate == CAR.GOLF:
-      ret.mass = 1568 + std_cargo
-      ret.wheelbase = 2.75
+      ret.mass = 1371 + std_cargo
+      ret.wheelbase = 2.64
       ret.centerToFront = ret.wheelbase * 0.5
       
       ret.steerRatio = 14
-      ret.steerActuatorDelay = 0.2
+      ret.steerActuatorDelay = 0.1
       ret.steerRateCost = 0
       ret.steerKf = 0.000007
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
