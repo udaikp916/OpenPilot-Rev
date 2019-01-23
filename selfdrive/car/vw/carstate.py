@@ -13,11 +13,11 @@ def get_powertrain_can_parser(CP, canbus):
     ("LWI_VZ_Lenkradwinkel", "LWI_01", 0),
     ("LWI_Lenkradw_Geschw", "LWI_01", 0),
     ("LWI_VZ_Lenkradw_Geschw", "LWI_01", 0),
-    ("ESP_HL_Radgeschw_02", "ESP_19", 0), 
+    ("ESP_HL_Radgeschw_02", "ESP_19", 0),
     ("ESP_HR_Radgeschw_02", "ESP_19", 0),
-    ("ESP_VL_Radgeschw_02", "ESP_19", 0), 
-    ("ESP_VR_Radgeschw_02", "ESP_19", 0), 
-    ("ACC_Status_ACC", "ACC_06", 0), 
+    ("ESP_VL_Radgeschw_02", "ESP_19", 0),
+    ("ESP_VR_Radgeschw_02", "ESP_19", 0),
+    ("ACC_Status_ACC", "ACC_06", 0),
   ]
 
   checks = [
@@ -78,12 +78,12 @@ class CarState(object):
 
     self.steer_override = abs(self.steer_torque_driver) > 1.0
 
-    if pt_cp.vl["LWI_01"]['LWI_VZ_Lenkradwinkel'] = 1:
+    if pt_cp.vl["LWI_01"]['LWI_VZ_Lenkradwinkel'] == 1:
       self.angle_steers = pt_cp.vl["LWI_01"]['LWI_Lenkradwinkel'] * -1
     else:
       self.angle_steers = pt_cp.vl["LWI_01"]['LWI_VZ_Lenkradwinkel']
     # calculate steer rate
-    if pt_cp.vl["LWI_01"]['LWI_VZ_Lenkradw_Geschw'] = 1
+    if pt_cp.vl["LWI_01"]['LWI_VZ_Lenkradw_Geschw'] == 1:
       self.angle_steers_rate = pt_cp.vl["LWI_01"]['LWI_Lenkradw_Geschw'] * -1
     else:
-      self.angle_steers_rate = pt_cp.vl["LWI_01"]['LWI_Lenkradw_Geschw'] 
+      self.angle_steers_rate = pt_cp.vl["LWI_01"]['LWI_Lenkradw_Geschw']

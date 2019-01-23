@@ -10,15 +10,15 @@ from selfdrive.can.packer import CANPacker
 
 class CarControllerParams():
   def __init__(self, car_fingerprint):
-    self.STEER_MAX = 300               # max stock steer 300 
+    self.STEER_MAX = 300               # max stock steer 300
     self.STEER_STEP_OFF = 100          # how often we update the steer cmd
     self.STEER_STEP_ON = 2             # how often we update the steer cmd
     self.STEER_DELTA_UP = 10           # torque increase per refresh
     self.STEER_DELTA_DOWN = 10         # torque decrease per refresh
     self.STEER_DRIVER_ALLOWANCE = 20   # allowed driver torque before start limiting
-    self.STEER_DRIVER_MULTIPLIER = 1   
-    self.STEER_DRIVER_FACTOR = 1       
-    
+    self.STEER_DRIVER_MULTIPLIER = 1
+    self.STEER_DRIVER_FACTOR = 1
+
 
 
 class CarController(object):
@@ -45,8 +45,8 @@ class CarController(object):
     canbus = self.canbus
 
     ### STEER ###
-    
-    if enabled:  
+
+    if enabled:
       if (frame % P.STEER_STEP_ON) == 0:
         lkas_enabled = enabled and not CS.steer_not_allowed
         final_steer = actuators.steer if enabled else 0.
@@ -87,5 +87,5 @@ class CarController(object):
         lkas_enabled = 0
         right = 0
         can_sends.append(vwcan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, steer, idx, lkas_enabled, right))
-    
+
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
