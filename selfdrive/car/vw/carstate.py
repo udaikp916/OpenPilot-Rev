@@ -17,24 +17,23 @@ def get_powertrain_can_parser(CP, canbus):
     ("ESP_HR_Radgeschw_02", "ESP_19", 0),
     ("ESP_VL_Radgeschw_02", "ESP_19", 0), 
     ("ESP_VR_Radgeschw_02", "ESP_19", 0), 
-    ("Cruise_On", "CruiseControl", 0), 
-    ("Cruise_Activated", "CruiseControl", 0), 
+    ("ACC_Status_ACC", "ACC_06", 0), 
   ]
-  
+
   checks = [
     # sig_address, frequency
-    ("CruiseControl", 20),
     ("LWI_01", 100),
     ("ESP_19", 100),
+    ("ACC_06", 50),
   ]
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, canbus.powertrain)
-  
+
 class CarState(object):
   def __init__(self, CP, canbus):
     # initialize can parser
     self.CP = CP
-    
+
     self.car_fingerprint = CP.carFingerprint
     self.left_blinker_on = False
     self.prev_left_blinker_on = False
@@ -56,7 +55,7 @@ class CarState(object):
   def update(self, pt_cp):
 
     self.can_valid = True
-    
+
     self.v_wheel_fl = pt_cp.vl["ESP_19"]['ESP_HL_Radgeschw_02'] * CV.KPH_TO_MS
     self.v_wheel_fr = pt_cp.vl["ESP_19"]['ESP_HR_Radgeschw_02'] * CV.KPH_TO_MS
     self.v_wheel_rl = pt_cp.vl["ESP_19"]['ESP_VL_Radgeschw_02'] * CV.KPH_TO_MS
@@ -74,15 +73,15 @@ class CarState(object):
     self.left_blinker_on = 0
     self.right_blinker_on = 0
     self.steer_torque_driver = 0 #FIXME
-    self.acc_active = pt_cp.vl["CruiseControl"]['Cruise_Activated'] 
-    self.main_on = pt_cp.vl["CruiseControl"]['Cruise_On']
-    
+    self.acc_active = 1 if pt_cp.vl["ACC_06"]['ACC_Status_ACC'] > 2 else 0
+    self.main_on = self.acc_active
+
     self.steer_override = abs(self.steer_torque_driver) > 1.0
-    
-    if pt_cp.vl["LWI_VZ_Lenkradwinkel"]['LWI_01'] = 1:
-      self.angle_steers = pt_cp.vl["LWI_Lenkradwinkel"]['LWI_01'] * -1
+
+    if pt_cp.vl["LWI_01"]['LWI_VZ_Lenkradwinkel'] = 1:
+      self.angle_steers = pt_cp.vl["LWI_01"]['LWI_Lenkradwinkel'] * -1
     else:
-      self.angle_steers = pt_cp.vl["LWI_VZ_Lenkradwinkel"]['LWI_01']
+      self.angle_steers = pt_cp.vl["LWI_01"]['LWI_VZ_Lenkradwinkel']
     # calculate steer rate
     if pt_cp.vl["LWI_01"]['LWI_VZ_Lenkradw_Geschw'] = 1
       self.angle_steers_rate = pt_cp.vl["LWI_01"]['LWI_Lenkradw_Geschw'] * -1
