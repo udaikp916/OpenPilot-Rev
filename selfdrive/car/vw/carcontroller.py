@@ -67,20 +67,25 @@ class CarController(object):
         apply_steer = int(round(apply_steer))
         self.apply_steer_last = apply_steer
 
-        if apply_steer != 0:
+        if apply_steer > -1:
+          steer = apply_steer
+          right = 0
+        else:
           steer = abs(apply_steer)
+          right = 1
         counter += 1
         idx = counter % 16
-        can_sends.append(vwcan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, steer, idx, lkas_enabled))
+        can_sends.append(vwcan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, steer, idx, lkas_enabled, right))
 
     else:
       if (frame % P.STEER_STEP_OFF) == 0:
-        apply_steer = 0
+        steer = 0
         if counter < 1:
           counter = self.counter
         counter += 1
         idx = counter % 16
         lkas_enabled = 0
-        can_sends.append(vwcan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, steer, idx, lkas_enabled))
+        right = 0
+        can_sends.append(vwcan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, steer, idx, lkas_enabled, right))
     
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
