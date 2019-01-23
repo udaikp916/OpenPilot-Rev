@@ -10,6 +10,8 @@ def create_steering_control(packer, bus, car_fingerprint, steer, idx, lkas_enabl
     "3": 3,
     "Steer_Torque": steer,
     "LKAS_ON": lkas_enabled,
+    "_LKAS_Boost": 0, 
+    "1": 1,
     "Torque_Not_0": 1 if steer != 0 else 0,
     "254": 254,
     "7": 7,
