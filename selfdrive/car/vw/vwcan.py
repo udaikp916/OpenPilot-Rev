@@ -12,7 +12,7 @@ def create_steering_control(packer, bus, car_fingerprint, steer, idx, lkas_enabl
     "LKAS_ON": lkas_enabled,
     "Torque_Not_0": 1 if steer != 0 else 0,
     "254": 254,
-    "7": 7
+    "7": 7,
   }
   dat = packer.make_can_msg("LKAS", 0, values)  
   checksum = vw_checksum(dat)
