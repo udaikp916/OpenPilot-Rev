@@ -1,7 +1,7 @@
 import crcmod
 from selfdrive.car.vw.values import CAR, DBC
 
-vw_checksum = crcmod.mkCrcFun(0x2F, initCrc=0xEF, rev=False, xorOut=0xFF)
+vw_checksum = crcmod.mkCrcFun(0x2F, initCrc=0x1EF, rev=False, xorOut=0xFF)
 
 def create_steering_control(packer, bus, car_fingerprint, steer, idx, lkas_enabled, right):
   values = {
