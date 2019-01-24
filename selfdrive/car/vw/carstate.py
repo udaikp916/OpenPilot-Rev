@@ -70,8 +70,8 @@ class CarState(object):
 
     self.prev_left_blinker_on = self.left_blinker_on
     self.prev_right_blinker_on = self.right_blinker_on
-    self.left_blinker_on = 0
-    self.right_blinker_on = 0
+    self.left_blinker_on = False
+    self.right_blinker_on = False
     self.steer_torque_driver = 0 #FIXME
     self.acc_active = 1 if pt_cp.vl["ACC_06"]['ACC_Status_ACC'] > 2 else 0
     self.main_on = self.acc_active
