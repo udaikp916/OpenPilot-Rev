@@ -62,7 +62,7 @@ class CarInterface(object):
       ret.mass = 1371 + std_cargo
       ret.wheelbase = 2.64
       ret.centerToFront = ret.wheelbase * 0.5
-      
+
       ret.steerRatio = 14
       ret.steerActuatorDelay = 0.1
       ret.steerRateCost = 0
@@ -141,10 +141,10 @@ class CarInterface(object):
     ret.wheelSpeeds.fr = self.CS.v_wheel_fr
     ret.wheelSpeeds.rl = self.CS.v_wheel_rl
     ret.wheelSpeeds.rr = self.CS.v_wheel_rr
-    
+
     # steering wheel
     ret.steeringAngle = self.CS.angle_steers
-    ret.steeringRate = self.CS.angle_steers_rate 
+    ret.steeringRate = self.CS.angle_steers_rate
 
     # torque and user override. Driver awareness
     # timer resets when the user uses the steering wheel.
@@ -153,8 +153,8 @@ class CarInterface(object):
 
     # cruise state
     ret.cruiseState.available = bool(self.CS.main_on)
-    ret.leftBlinker = self.CS.left_blinker_on
-    ret.rightBlinker = self.CS.right_blinker_on
+    ret.leftBlinker = bool(self.CS.left_blinker_on)
+    ret.rightBlinker = bool(self.CS.right_blinker_on)
 
 
     buttonEvents = []
@@ -163,13 +163,13 @@ class CarInterface(object):
     if self.CS.left_blinker_on != self.CS.prev_left_blinker_on:
       be = car.CarState.ButtonEvent.new_message()
       be.type = 'leftBlinker'
-      be.pressed = self.CS.left_blinker_on
+      be.pressed = bool(self.CS.left_blinker_on)
       buttonEvents.append(be)
 
     if self.CS.right_blinker_on != self.CS.prev_right_blinker_on:
       be = car.CarState.ButtonEvent.new_message()
       be.type = 'rightBlinker'
-      be.pressed = self.CS.right_blinker_on
+      be.pressed = bool(self.CS.right_blinker_on)
       buttonEvents.append(be)
 
     be = car.CarState.ButtonEvent.new_message()
@@ -198,7 +198,7 @@ class CarInterface(object):
       # do disable on button down
       if b.type == "cancel" and b.pressed:
         events.append(create_event('buttonCancel', [ET.USER_DISABLE]))
-		
+
     ret.events = events
 
     # update previous brake/gas pressed
