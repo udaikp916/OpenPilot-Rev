@@ -24,20 +24,23 @@ static int vw_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   
   // shifts bits from 29 to 11
   int32_t addr = to_fwd->RIR >> 21;
-  /*
-  // forward messages from extended to camera
+  
+  // forward messages from car to extended
   if (bus_num == 0) {
-    return 2; //camera 
+    
+    return 1; //extended 
+    
   }
-  // forward messages from radar to camera
+  // forward messages from extended to car
   else if (bus_num == 1) {
-    return 2; // camera 
+    
+    //filter 0x126 from being forwarded
+    if (addr == 0x126) {
+      return -1;
+    }
+    
+    return 0; //car 
   }
-  // forward messages from camera to radar
-  else if (bus_num == 2) {
-    return 1; // radar 
-  }
-  */
 
   // fallback to do not forward
   return -1;
