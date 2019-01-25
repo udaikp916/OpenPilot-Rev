@@ -21,9 +21,10 @@ static int vw_tx_lin_hook(int lin_num, uint8_t *data, int len) {
 
 static int vw_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   
+  
   // shifts bits from 29 to 11
   int32_t addr = to_fwd->RIR >> 21;
-
+  /*
   // forward messages from extended to camera
   if (bus_num == 0) {
     return 2; //camera 
@@ -36,6 +37,7 @@ static int vw_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   else if (bus_num == 2) {
     return 1; // radar 
   }
+  */
 
   // fallback to do not forward
   return -1;

@@ -48,7 +48,7 @@ typedef struct {
 } safety_hooks;
 
 // This can be set by the safety hooks.
-int controls_allowed = 0;
+int controls_allowed = 1;
 
 // Include the actual safety policies.
 #include "safety/safety_defaults.h"
