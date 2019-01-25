@@ -11,8 +11,7 @@ from selfdrive.can.packer import CANPacker
 class CarControllerParams():
   def __init__(self, car_fingerprint):
     self.STEER_MAX = 300               # max stock steer 300
-    self.STEER_STEP_OFF = 100          # how often we update the steer cmd
-    self.STEER_STEP_ON = 2             # how often we update the steer cmd
+    self.STEER_STEP = 2             # how often we update the steer cmd
     self.STEER_DELTA_UP = 10           # torque increase per refresh
     self.STEER_DELTA_DOWN = 10         # torque decrease per refresh
     self.STEER_DRIVER_ALLOWANCE = 20   # allowed driver torque before start limiting
@@ -46,9 +45,8 @@ class CarController(object):
 
     ### STEER ###
 
-    if enabled:
-      if (frame % P.STEER_STEP_ON) == 0:
-        lkas_enabled = enabled and not CS.steer_not_allowed
+    if (frame % P.STEER_STEP) == 0:
+      if enabled:
         final_steer = actuators.steer if enabled else 0.
         apply_steer = final_steer * P.STEER_MAX
         # limits due to driver torque
@@ -67,25 +65,21 @@ class CarController(object):
         apply_steer = int(round(apply_steer))
         self.apply_steer_last = apply_steer
 
+        # steer must be a positive value
         if apply_steer > -1:
           steer = apply_steer
           right = 0
         else:
           steer = abs(apply_steer)
           right = 1
-        counter += 1
-        idx = counter % 16
-        can_sends.append(vwcan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, steer, idx, lkas_enabled, right))
-
-    else:
-      if (frame % P.STEER_STEP_OFF) == 0:
+      else:
         steer = 0
-        if counter < 1:
-          counter = self.counter
-        counter += 1
-        idx = counter % 16
-        lkas_enabled = 0
         right = 0
-        can_sends.append(vwcan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, steer, idx, lkas_enabled, right))
+
+      lkas_enabled = 1
+      idx = (frame / P.STEER_STEP) % 16
+
+      can_sends.append(vwcan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, steer, idx, lkas_enabled, right))
 
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
+
