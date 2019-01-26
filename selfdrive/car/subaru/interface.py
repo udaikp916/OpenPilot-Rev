@@ -25,6 +25,8 @@ class CarInterface(object):
     self.frame = 0
     self.can_invalid_count = 0
     self.acc_active_prev = 0
+    self.gas_pressed_prev = 0
+    self.brake_pressed_prev = 0
 
     # *** init the major players ***
     canbus = CanBus()
