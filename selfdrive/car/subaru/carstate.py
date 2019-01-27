@@ -44,6 +44,7 @@ def get_eyesight_can_parser(CP, canbus):
   signals = [
     # sig_name, sig_address, default
     ("Saved_Speed", "ES_Status", 0),
+    ("1All_Depart", "ES_LDW", 0),
   ]
 
   checks = []
@@ -96,7 +97,7 @@ class CarState(object):
     self.left_blinker_on = pt_cp.vl["Dashlights"]['LEFT_BLINKER'] == 1
     self.right_blinker_on = pt_cp.vl["Dashlights"]['RIGHT_BLINKER'] == 1
     self.steer_torque_driver = pt_cp.vl["Steering_Torque"]['Steer_Torque_Sensor']
-    self.acc_active = pt_cp.vl["CruiseControl"]['Cruise_Activated']
+    self.acc_active = pt_cp.vl["CruiseControl"]['Cruise_Activated'] or es_cp.vl["ES_LDW"]['1All_Depart']
     self.main_on = pt_cp.vl["CruiseControl"]['Cruise_On']
     self.cruise_set_speed = es_cp.vl["ES_Status"]['Saved_Speed']
 
