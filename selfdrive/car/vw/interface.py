@@ -21,6 +21,7 @@ class CanBus(object):
 class CarInterface(object):
   def __init__(self, CP, sendcan=None):
     self.CP = CP
+    self.cp_cam = get_camera_parser(CP)
 
     self.frame = 0
     self.can_invalid_count = 0
@@ -126,7 +127,8 @@ class CarInterface(object):
   def update(self, c):
 
     self.pt_cp.update(int(sec_since_boot() * 1e9), False)
-    self.CS.update(self.pt_cp)
+    self.cp_cam.update(int(sec_since_boot() * 1e9), False)
+    self.CS.update(self.pt_cp, self.cp_cam)
 
     # create message
     ret = car.CarState.new_message()

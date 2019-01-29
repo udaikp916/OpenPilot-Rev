@@ -29,10 +29,22 @@ def get_powertrain_can_parser(CP, canbus):
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, canbus.powertrain)
 
+
+def get_camera_parser(CP):
+
+  signals = [
+    # sig_name, sig_address, default
+    ("ACC_Status_ACC", "ACC_06", 0),
+  ]
+
+  checks = []
+
+  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
 class CarState(object):
-  def __init__(self, CP, canbus):
+  def __init__(self, CP, canbus, cp_cam):
     # initialize can parser
     self.CP = CP
+
 
     self.car_fingerprint = CP.carFingerprint
     self.left_blinker_on = False
@@ -52,7 +64,7 @@ class CarState(object):
                          K=np.matrix([[0.12287673], [0.29666309]]))
     self.v_ego = 0.
 
-  def update(self, pt_cp):
+  def update(self, pt_cp, cp_cam):
 
     self.can_valid = True
 
@@ -73,7 +85,7 @@ class CarState(object):
     self.left_blinker_on = False
     self.right_blinker_on = False
     self.steer_torque_driver = 0 #FIXME
-    self.acc_active = 1 if pt_cp.vl["ACC_06"]['ACC_Status_ACC'] > 2 else 0
+    self.acc_active = 1 if cp_cam.vl["ACC_06"]['ACC_Status_ACC'] > 2 else 0
     self.main_on = self.acc_active
 
     self.steer_override = abs(self.steer_torque_driver) > 1.0
