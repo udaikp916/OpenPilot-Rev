@@ -121,10 +121,7 @@ class CarState(object):
     self.brake_pressure = pt_cp.vl["Brake_Pedal"]['Brake_Pedal']
     self.brake_pressed = self.brake_pressure > 0
     self.brake_lights = bool(self.brake_pressed)
-    if pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_RR'] + pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_RL'] + pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_FR'] + pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_FL'] + pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_HATCH'] < 1:
-      self.door_open = False
-
-
+    self.door_open = any([pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_RR'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_RL'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_FR'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_FL'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_HATCH']])
 
     gear = cp.vl["Transmission"]["Gear"]
     if gear == 0:
