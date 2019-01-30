@@ -2,7 +2,7 @@ from common.numpy_fast import clip, interp
 from common.realtime import sec_since_boot
 from selfdrive.config import Conversions as CV
 from selfdrive.boardd.boardd import can_list_to_can_capnp
-from selfdrive.car.subaru.carstate import CarState, get_powertrain_can_parser
+from selfdrive.car.subaru.carstate import CarState, get_powertrain_can_parser, get_eyesight_can_parser
 from selfdrive.car.subaru import subarucan
 from selfdrive.car.subaru.values import CAR, DBC
 from selfdrive.can.packer import CANPacker
@@ -10,16 +10,16 @@ from selfdrive.can.packer import CANPacker
 
 class CarControllerParams():
   def __init__(self, car_fingerprint):
-    self.STEER_MAX = 2047              # max_steer 4095
-    self.STEER_STEP = 2                # how often we update the steer cmd
-    self.STEER_DELTA_UP = 60           # torque increase per refresh
-    self.STEER_DELTA_DOWN = 60         # torque decrease per refresh
+    self.STEER_MAX = 2047                 # max_steer 4095
+    self.STEER_STEP = 2                   # how often we update the steer cmd
+    self.STEER_DELTA_UP = 60              # torque increase per refresh
+    self.STEER_DELTA_DOWN = 60            # torque decrease per refresh
     if car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
-      self.STEER_DRIVER_ALLOWANCE = 20   # allowed driver torque before start limiting
+      self.STEER_DRIVER_ALLOWANCE = 20    # allowed driver torque before start limiting
     else:
       self.STEER_DRIVER_ALLOWANCE = 250   # allowed driver torque before start limiting
-    self.STEER_DRIVER_MULTIPLIER = 1   # weight driver torque heavily
-    self.STEER_DRIVER_FACTOR = 1     # from dbc
+    self.STEER_DRIVER_MULTIPLIER = 1      # weight driver torque heavily
+    self.STEER_DRIVER_FACTOR = 1          # from dbc
 
 
 
