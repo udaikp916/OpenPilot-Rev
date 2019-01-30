@@ -5,7 +5,7 @@ from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import create_event, EventTypes as ET
 from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.car.vw.values import DBC, CAR
-from selfdrive.car.vw.carstate import CarState, get_powertrain_can_parser
+from selfdrive.car.vw.carstate import CarState, get_gateway_can_parser, get_extended_can_parser
 
 try:
   from selfdrive.car.vw.carcontroller import CarController
@@ -15,13 +15,12 @@ except ImportError:
 
 class CanBus(object):
   def __init__(self):
-    self.powertrain = 0
-    self.obstacle = 1
+    self.gateway = 0
+    self.extended = 1
 
 class CarInterface(object):
   def __init__(self, CP, sendcan=None):
     self.CP = CP
-    self.cp_cam = get_camera_parser(CP)
 
     self.frame = 0
     self.can_invalid_count = 0
@@ -31,7 +30,8 @@ class CarInterface(object):
     canbus = CanBus()
     self.CS = CarState(CP, canbus)
     self.VM = VehicleModel(CP)
-    self.pt_cp = get_powertrain_can_parser(CP, canbus)
+    self.gw_cp = get_gateway_can_parser(CP, canbus)
+    self.ex_cp = get_extended_can_parser(CP, canbus)
 
     # sending if read only is False
     if sendcan is not None:
@@ -126,9 +126,9 @@ class CarInterface(object):
   # returns a car.CarState
   def update(self, c):
 
-    self.pt_cp.update(int(sec_since_boot() * 1e9), False)
-    self.cp_cam.update(int(sec_since_boot() * 1e9), False)
-    self.CS.update(self.pt_cp, self.cp_cam)
+    self.gw_cp.update(int(sec_since_boot() * 1e9), False)
+    self.ex_cp.update(int(sec_since_boot() * 1e9), False)
+    self.CS.update(self.gw_cp, self.ex_cp)
 
     # create message
     ret = car.CarState.new_message()
@@ -158,6 +158,8 @@ class CarInterface(object):
     ret.leftBlinker = bool(self.CS.left_blinker_on)
     ret.rightBlinker = bool(self.CS.right_blinker_on)
 
+    # doors open
+    ret.doorOpen = not self.CS.door_all_closed
 
     buttonEvents = []
 

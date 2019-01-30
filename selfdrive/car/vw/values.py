@@ -10,5 +10,5 @@ FINGERPRINTS = {
 }
 
 DBC = {
-  CAR.GOLF: dbc_dict('VW_Golf', None),
+  CAR.GOLF: dbc_dict('vw_mqb_2010', None),
 }
