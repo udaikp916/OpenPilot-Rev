@@ -12,8 +12,28 @@ int subaru_cruise_engaged_last = 0;
 uint32_t subaru_ts_last = 0;
 struct sample_t subaru_torque_driver;         // last few driver torques measured
 
-static void subaru_init(int16_t param) {
-  controls_allowed = 1;
+void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
+  int bus = (to_push->RDTR >> 4) & 0xFF;
+  uint32_t addr;
+  addr = to_push->RIR >> 21;
+  
+  // sets driver torque
+  if (addr == 881) {
+    int torque_driver_new = ((to_push->RDLR >> 32) & 0xff);
+    // update array of samples
+    update_sample(&subaru_torque_driver, torque_driver_new);
+  }
+  
+  // enter controls on rising edge of ACC, exit controls on ACC off
+  if (addr == 324) {
+    int cruise_engaged = (to_push->RDLR >> 49) & 0x1;
+    if (cruise_engaged && !subaru_cruise_engaged_last) {
+      controls_allowed = 1;
+    } else if (!cruise_engaged) {
+      controls_allowed = 0;
+    }
+    subaru_cruise_engaged_last = cruise_engaged;
+  }
 }
 
 static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
