@@ -113,6 +113,9 @@ class CarState(object):
     self.left_blinker_on = gw_cp.vl["Gateway_72"]['BH_Blinker_li']
     self.right_blinker_on = gw_cp.vl["Gateway_72"]['BH_Blinker_re']
 
+    # Update seatbelt warning status
+    self.seatbelt = not gw_cp.vl["Airbag_01"]["AB_Gurtwarn_VF"]
+
     self.steer_torque_driver = 0 #FIXME
     self.acc_active = 1 if ex_cp.vl["ACC_06"]['ACC_Status_ACC'] > 2 else 0
     self.main_on = self.acc_active

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from cereal import car
+from cereal import car, log
 from common.realtime import sec_since_boot
 from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import create_event, EventTypes as ET
@@ -60,22 +60,22 @@ class CarInterface(object):
     std_cargo = 136
 
     if candidate == CAR.GOLF:
-      ret.mass = 1371 + std_cargo
+      ret.mass = 1372 + std_cargo
       ret.wheelbase = 2.64
       ret.centerToFront = ret.wheelbase * 0.5
 
       ret.steerRatio = 14
       ret.steerActuatorDelay = 0.1
-      ret.steerRateCost = 0
-      ret.steerKf = 0.000007
+      ret.steerRateCost = 0.5
+      ret.steerKf = 0.00006
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
-      ret.steerKpV, ret.steerKiV = [[0.003], [0.00]]
+      ret.steerKpV, ret.steerKiV = [[0.375], [0.1]]
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
     ret.safetyModel = car.CarParams.SafetyModels.vw
     ret.steerControlType = car.CarParams.SteerControlType.torque
-    ret.steerLimitAlert = False
+    ret.steerLimitAlert = True
     ret.steerRatioRear = 0.
     # testing tuning
 
@@ -176,6 +176,7 @@ class CarInterface(object):
       be.pressed = bool(self.CS.right_blinker_on)
       buttonEvents.append(be)
 
+    # XXX JY WTF for are we unconditionally sending this message
     be = car.CarState.ButtonEvent.new_message()
     be.type = 'accelCruise'
     buttonEvents.append(be)
@@ -212,6 +213,6 @@ class CarInterface(object):
     # cast to reader so it can't be modified
     return ret.as_reader()
 
-  def apply(self, c, perception_state):
+  def apply(self, c, perception_state=log.Live20Data.new_message()):
     self.CC.update(self.sendcan, c.enabled, self.CS, self.frame, c.actuators)
     self.frame += 1
