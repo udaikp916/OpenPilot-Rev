@@ -74,8 +74,8 @@ class CarInterface(object):
       ret.steerMaxV = [1.]
 
     if candidate == CAR.OCTAVIA:
-      ret.mass = 1372 + std_cargo
-      ret.wheelbase = 2.64
+      ret.mass = 1360 + std_cargo
+      ret.wheelbase = 2.69
       ret.centerToFront = ret.wheelbase * 0.5
 
       ret.steerRatio = 14
