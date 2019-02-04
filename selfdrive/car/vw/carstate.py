@@ -2,7 +2,7 @@ import numpy as np
 from cereal import car
 from common.kalman.simple_kalman import KF1D
 from selfdrive.config import Conversions as CV
-from selfdrive.can.parser import CANParser
+from selfdrive.can.parser import CANParser, CANDefine
 from selfdrive.car.vw.values import DBC, CAR
 
 def get_gateway_can_parser(CP, canbus):
@@ -29,13 +29,18 @@ def get_gateway_can_parser(CP, canbus):
     ("AB_Gurtwarn_VB", "Airbag_01", 0),         # Seatbelt warning, passenger
     ("ESP_Fahrer_bremst", "ESP_05", 0),         # Brake pedal pressed
     ("MO_Fahrpedalrohwert_01", "Motor_20", 0),  # Accelerator pedal value
+    ("Driver_Strain", "EPS_01", 0),             # Absolute driver torque input
+    ("Driver_Strain_VZ", "EPS_01", 0),          # Driver torque input sign
+    ("ESP_Tastung_passiv", "ESP_21", 0),        # Stability control disabled
   ]
 
   checks = [
     # sig_address, frequency
     ("LWI_01", 100),      # From J500 Steering Assist with integrated sensors
+    ("EPS_01", 100),      # From J500 Steering Assist with integrated sensors
     ("ESP_19", 100),      # From J104 ABS/ESP controller
     ("ESP_05", 50),       # From J104 ABS/ESP controller
+    ("ESP_21", 50),       # From J104 ABS/ESP controller
     ("Motor_20", 50),     # From J623 Engine control module
     ("Gateway_72", 10),   # From J533 CAN gateway (aggregated data)
     ("Getriebe_11", 20),  # From J743 Auto transmission control module
@@ -54,10 +59,23 @@ def get_extended_can_parser(CP, canbus):
 
   checks = [
     # sig_address, frequency
-    ("ACC_06", 50),       # From JXXX ACC radar control module
+    ("ACC_06", 50),       # From J428 ACC radar control module
   ]
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, canbus.extended)
+
+def parse_gear_shifter(gear,vals):
+  # Return mapping of gearshift position to selected gear. Sport on modern VWs
+  # is a momentary contact, springing back to "Drive", so treat identically to Drive
+  # unless we really care, then we'll have to fetch it from Getriebe messages.
+  # Tiptronic gate shifting is mapped to Drive within the DBC. A momentary unknown
+  # gear is expected when shifting P-R or R-P.
+  val_to_capnp = {'P': 'park', 'R': 'reverse', 'N': 'neutral',
+                  'D': 'drive', 'S': 'drive'}
+  try:
+    return val_to_capnp[vals[gear]]
+  except KeyError:
+    return "unknown"
 
 class CarState(object):
   def __init__(self, CP, canbus):
