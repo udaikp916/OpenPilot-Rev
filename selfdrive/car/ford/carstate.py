@@ -15,15 +15,14 @@ def get_can_parser(CP):
     ("WhlFr_W_Meas", "WheelSpeed_CG1", 0.),
     ("WhlFl_W_Meas", "WheelSpeed_CG1", 0.),
     ("SteWhlRelInit_An_Sns", "Steering_Wheel_Data_CG1", 0.),
-    ("Cruise_State", "Cruise_Status", 0.),
-    ("Set_Speed", "Cruise_Status", 0.),
-    ("LaActAvail_D_Actl", "Lane_Keep_Assist_Status", 0),
-    ("LaHandsOff_B_Actl", "Lane_Keep_Assist_Status", 0),
-    ("LaActDeny_B_Actl", "Lane_Keep_Assist_Status", 0),
+    ("CcStat_D_Actl", "EngBrakeData", 0.),
+    ("Veh_V_DsplyCcSet", "EngBrakeData", 0.),
+    ("LaActAvail_D_Actl", "Lane_Assist_Data3", 0),
+    ("LaHandsOff_B_Actl", "Lane_Assist_Data3", 0),
+    ("LaActDeny_B_Actl", "Lane_Assist_Data3", 0),
     ("ApedPosScal_Pc_Actl", "EngineData_14", 0.),
-    ("Dist_Incr", "Steering_Buttons", 0.),
-    ("Brake_Drv_Appl", "Cruise_Status", 0.),
-    ("Brake_Lights", "BCM_to_HS_Body", 0.),
+    ("BpedDrvAppl_D_Actl", "EngBrakeData", 0.),
+    ("Brake_Lamp_On_Status", "BCM_to_HS_Body", 0.),
   ]
 
   checks = [
@@ -75,16 +74,15 @@ class CarState(object):
     v_ego_x = self.v_ego_kf.update(self.v_wheel)
     self.v_ego = float(v_ego_x[0])
     self.a_ego = float(v_ego_x[1])
-    self.standstill = not self.v_wheel > 0.001
+    self.standstill = not self.v_wheel > 0.01
 
     self.angle_steers = cp.vl["Steering_Wheel_Data_CG1"]['SteWhlRelInit_An_Sns']
-    self.v_cruise_pcm = cp.vl["Cruise_Status"]['Set_Speed'] * CV.MPH_TO_MS
-    self.pcm_acc_status = cp.vl["Cruise_Status"]['Cruise_State']
-    self.main_on = cp.vl["Cruise_Status"]['Cruise_State'] != 0
-    self.lkas_state = cp.vl["Lane_Keep_Assist_Status"]['LaActAvail_D_Actl']
-    self.steer_override = not cp.vl["Lane_Keep_Assist_Status"]['LaHandsOff_B_Actl']
-    self.steer_error = cp.vl["Lane_Keep_Assist_Status"]['LaActDeny_B_Actl']
+    self.v_cruise_pcm = cp.vl["EngBrakeData"]['Veh_V_DsplyCcSet'] * CV.MPH_TO_MS
+    self.pcm_acc_status = cp.vl["EngBrakeData"]['CcStat_D_Actl']
+    self.main_on = cp.vl["EngBrakeData"]['CcStat_D_Actl'] != 0
+    self.lkas_state = cp.vl["Lane_Assist_Data3"]['LaActAvail_D_Actl']
+    self.steer_override = not cp.vl["Lane_Assist_Data3"]['LaHandsOff_B_Actl']
+    self.steer_error = cp.vl["Lane_Assist_Data3"]['LaActDeny_B_Actl']
     self.user_gas = cp.vl["EngineData_14"]['ApedPosScal_Pc_Actl']
-    self.brake_pressed = bool(cp.vl["Cruise_Status"]["Brake_Drv_Appl"])
-    self.brake_lights = bool(cp.vl["BCM_to_HS_Body"]["Brake_Lights"])
-    self.generic_toggle = bool(cp.vl["Steering_Buttons"]["Dist_Incr"])
+    self.brake_pressed = bool(cp.vl["EngBrakeData"]["BpedDrvAppl_D_Actl"])
+    self.brake_lights = bool(cp.vl["BCM_to_HS_Body"]["Brake_Lamp_On_Status"])

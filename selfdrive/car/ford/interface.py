@@ -168,7 +168,7 @@ class CarInterface(object):
     ret.cruiseState.speed = self.CS.v_cruise_pcm
     ret.cruiseState.available = self.CS.pcm_acc_status != 0
 
-    ret.genericToggle = self.CS.generic_toggle
+    ret.genericToggle = 0
 
     # events
     events = []
@@ -182,6 +182,7 @@ class CarInterface(object):
     if self.CS.steer_error:
       events.append(create_event('steerUnavailable', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE, ET.PERMANENT]))
 
+    '''
     # enable request in prius is simple, as we activate when Toyota is active (rising edge)
     if ret.cruiseState.enabled and not self.cruise_enabled_prev:
       events.append(create_event('pcmEnable', [ET.ENABLE]))
@@ -195,7 +196,7 @@ class CarInterface(object):
 
     if ret.gasPressed:
       events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
-
+    '''
     if self.CS.lkas_state not in [2, 3] and ret.vEgo > 13.* CV.MPH_TO_MS and ret.cruiseState.enabled:
       events.append(create_event('steerTempUnavailableMute', [ET.WARNING]))
 
@@ -212,8 +213,7 @@ class CarInterface(object):
   # to be called @ 100hz
   def apply(self, c, perception_state=log.Live20Data.new_message()):
 
-    self.CC.update(self.sendcan, c.enabled, self.CS, self.frame, c.actuators,
-                   c.hudControl.visualAlert, c.cruiseControl.cancel)
+    self.CC.update(self.sendcan, c.enabled, self.CS, self.frame, c.actuators)
 
     self.frame += 1
     return False

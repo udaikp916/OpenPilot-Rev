@@ -6,7 +6,7 @@
 //      accel rising edge
 //      brake rising edge
 //      brake > 0mph
-
+/*
 int ford_brake_prev = 0;
 int ford_gas_prev = 0;
 int ford_is_moving = 0;
@@ -48,6 +48,7 @@ static void ford_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
     }
     ford_gas_prev = gas;
   }
+
 }
 
 // all commands: just steering
@@ -55,9 +56,9 @@ static void ford_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 //     allow all commands up to limit
 // else
 //     block all commands that produce actuation
-
+*/
 static int ford_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
-
+/*
   // disallow actuator commands if gas or brake (with vehicle moving) are pressed
   // and the the latching controls_allowed flag is True
   int pedal_pressed = ford_gas_prev || (ford_brake_prev && ford_is_moving);
@@ -78,16 +79,30 @@ static int ford_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   if ((to_send->RIR>>21) == 0x83) {
     if ((to_send->RDLR >> 28) & 0x3) return 0;
   }
-
+*/
   // 1 allows the message through
   return true;
 }
 
+static int ford_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
+  
+  // shifts bits 29 > 11
+  int32_t addr = to_fwd->RIR >> 21;
+
+  // forward CAN 0 > 1
+  if (bus_num == 0) {
+    return 1; // CAM CAN
+  }
+ 
+
+  // fall back to do not forward
+  return -1;
+}
 const safety_hooks ford_hooks = {
-  .init = nooutput_init,
+  .init = alloutput_init,
   .rx = ford_rx_hook,
-  .tx = ford_tx_hook,
+  .tx = alloutput_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,
   .ignition = default_ign_hook,
-  .fwd = nooutput_fwd_hook,
+  .fwd = ford_fwd_hook,
 };
