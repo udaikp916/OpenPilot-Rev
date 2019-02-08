@@ -65,13 +65,17 @@ def get_extended_can_parser(CP, canbus):
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, canbus.extended)
 
 def parse_gear_shifter(gear,vals):
-  # Return mapping of gearshift position to selected gear. Sport on modern VWs
-  # is a momentary contact, springing back to "Drive", so treat identically to Drive
-  # unless we really care, then we'll have to fetch it from Getriebe messages.
-  # Tiptronic gate shifting is mapped to Drive within the DBC. A momentary unknown
-  # gear is expected when shifting P-R or R-P.
+  # Return mapping of gearshift position to selected gear. Eco is not a gear
+  # understood by OP at this time, so map it to Drive. For other ports, Sport is
+  # detected by OP as a no entry/soft cancel condition, so be consistent there.
+  # Map Tiptronic (pseudo-manual mode) to Sport since OP doesn't have that either.
+  #
+  # Intention for the other ports was probably to provide consistent gas pedal behavior
+  # for longitudinal use, but VW Bosch ACC provides m/s acceleration requests to the
+  # ECU directly, pre-computed to match the Charisma driving profile as applicable,
+  # so Drive/Sport/Eco don't really figure in to ACC behavior.
   val_to_capnp = {'P': 'park', 'R': 'reverse', 'N': 'neutral',
-                  'D': 'drive', 'S': 'drive'}
+                  'D': 'drive', 'E': 'drive', 'S': 'sport', 'T': 'sport'}
   try:
     return val_to_capnp[vals[gear]]
   except KeyError:
@@ -82,7 +86,7 @@ class CarState(object):
     # initialize can parser
     self.CP = CP
     self.car_fingerprint = CP.carFingerprint
-    self.can_define = CANDefine(DBC[CP.carFingerprint]['pt'])  # FIXME pt>gw
+    self.can_define = CANDefine(DBC[CP.carFingerprint]['pt'])
     self.shifter_values = self.can_define.dv["Getriebe_11"]['GE_Fahrstufe']
     self.left_blinker_on = False
     self.prev_left_blinker_on = False
@@ -165,5 +169,6 @@ class CarState(object):
 
     # Update ACC engagement
     # TODO: Get a little more sophisticated with ACC states and transitions later
+    self.acc_enabled = 1 if ex_cp.vl["ACC_06"]['ACC_Status_ACC'] > 1 else 0
     self.acc_active = 1 if ex_cp.vl["ACC_06"]['ACC_Status_ACC'] > 2 else 0
     self.main_on = self.acc_active
