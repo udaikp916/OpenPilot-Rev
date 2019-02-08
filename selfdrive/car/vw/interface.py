@@ -178,6 +178,7 @@ class CarInterface(object):
     # Gas, brakes and shifting
     ret.gas = self.CS.pedal_gas / 100
     ret.gasPressed = self.CS.pedal_gas > 0
+    ret.brake = self.CS.user_brake / 250 # FIXME: approximated, verify
     ret.brakePressed = bool(self.CS.brake_pressed)
     ret.brakeLights = bool(self.CS.brake_lights)
     ret.gearShifter = self.CS.gear_shifter

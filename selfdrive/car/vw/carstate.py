@@ -25,9 +25,11 @@ def get_gateway_can_parser(CP, canbus):
     ("BH_Blinker_li", "Gateway_72", 0),         # Left turn signal on
     ("BH_Blinker_re", "Gateway_72", 0),         # Right turn signal on
     ("GE_Fahrstufe", "Getriebe_11", 0),         # Transmission gear selector position
-    ("AB_Gurtwarn_VF", "Airbag_01", 0),         # Seatbelt warning, driver
-    ("AB_Gurtwarn_VB", "Airbag_01", 0),         # Seatbelt warning, passenger
+    ("AB_Gurtschloss_FA", "Airbag_02", 0),      # Seatbelt status, driver
+    ("AB_Gurtschloss_BF", "Airbag_02", 0),      # Seatbelt status, passenger
     ("ESP_Fahrer_bremst", "ESP_05", 0),         # Brake pedal pressed
+    ("ESP_Status_Bremsdruck", "ESP_05", 0),     # Brakes applied
+    ("ESP_Bremsdruck", "ESP_05", 0),            # Brake pressure applied
     ("MO_Fahrpedalrohwert_01", "Motor_20", 0),  # Accelerator pedal value
     ("Driver_Strain", "EPS_01", 0),             # Absolute driver torque input
     ("Driver_Strain_VZ", "EPS_01", 0),          # Driver torque input sign
@@ -44,7 +46,7 @@ def get_gateway_can_parser(CP, canbus):
     ("Motor_20", 50),     # From J623 Engine control module
     ("Gateway_72", 10),   # From J533 CAN gateway (aggregated data)
     ("Getriebe_11", 20),  # From J743 Auto transmission control module
-    ("Airbag_01", 20),    # From J234 Airbag control module
+    ("Airbag_02", 5),     # From J234 Airbag control module
   ]
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, canbus.gateway)
@@ -125,8 +127,8 @@ class CarState(object):
     self.right_blinker_on = gw_cp.vl["Gateway_72"]['BH_Blinker_re']
 
     # Update seatbelt warning status
-    # TODO: Re-examine this method of getting seatbelt state, it doesn't work as hoped.
-    self.seatbelt = not gw_cp.vl["Airbag_01"]["AB_Gurtwarn_VF"]
+    # TODO: Verify operation on car
+    self.seatbelt = if gw_cp.vl["Airbag_02"]["AB_Gurtschloss_FA"] == 3
 
     # Update speed from ABS wheel speeds
     # TODO: Why aren't we using of of the perfectly good calculated speeds from the car?
@@ -164,6 +166,7 @@ class CarState(object):
     self.pedal_gas = gw_cp.vl["Motor_20"]['MO_Fahrpedalrohwert_01']
     self.brake_pressed = gw_cp.vl["ESP_05"]['ESP_Fahrer_bremst']
     self.brake_lights = gw_cp.vl["ESP_05"]['ESP_Status_Bremsdruck']
+    self.user_brake = gw_cp.vl["ESP_05"]['ESP_Bremsdruck']
     can_gear_shifter = int(gw_cp.vl["Getriebe_11"]['GE_Fahrstufe'])
     self.gear_shifter = parse_gear_shifter(can_gear_shifter, self.shifter_values)
 
