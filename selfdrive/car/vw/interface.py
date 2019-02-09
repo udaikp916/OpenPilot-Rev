@@ -139,6 +139,7 @@ class CarInterface(object):
 
   # returns a car.CarState
   def update(self, c):
+    canMonoTimes = []
 
     self.gw_cp.update(int(sec_since_boot() * 1e9), False)
     self.ex_cp.update(int(sec_since_boot() * 1e9), False)
@@ -172,8 +173,9 @@ class CarInterface(object):
     ret.leftBlinker = bool(self.CS.left_blinker_on)
     ret.rightBlinker = bool(self.CS.right_blinker_on)
 
-    # doors open
+    # doors open, seatbelt unfastened
     ret.doorOpen = not self.CS.door_all_closed
+    ret.seatbeltUnlatched = not self.CS.seatbelt
 
     # Gas, brakes and shifting
     ret.gas = self.CS.pedal_gas / 100
@@ -235,8 +237,17 @@ class CarInterface(object):
       events.append(create_event('reverseGear', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE]))
     if ret.gasPressed:
       events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
+    if ret.seatbeltUnlatched:
+      events.append(create_event('seatbeltNotLatched', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
+    if self.CS.esp_disabled:
+      events.append(create_event('espDisabled', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
+    if self.CS.steer_error:
+      events.append(create_event('steerUnavailable', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE, ET.PERMANENT]))
+    if self.CS.park_brake:
+      events.append(create_event('parkBrake', [ET.NO_ENTRY, ET.USER_DISABLE]))
 
     ret.events = events
+    ret.canMonoTimes = canMonoTimes
 
     # update previous brake/gas pressed
     self.acc_active_prev = self.CS.acc_active

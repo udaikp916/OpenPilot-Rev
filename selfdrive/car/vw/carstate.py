@@ -5,6 +5,20 @@ from selfdrive.config import Conversions as CV
 from selfdrive.can.parser import CANParser, CANDefine
 from selfdrive.car.vw.values import DBC, CAR
 
+# TODO: additional signals
+#  * Electronic parking brake
+#  * Manual parking brake
+#  * EPS HCA support detection (throw steering error on engage if not supported)
+#  * ACC speed setpoint
+#  * ACC following distance setpoint
+#  * ACC distance to car in front
+#  * ACC ??? how to detect stop and go support from CAN ???
+#  * GRA_ACC_01 steering wheel buttons for events, and to send cancels and speed changes
+#  * LDW_02 for Active Lane Guidance HUD in instrument cluster
+#  * Dimmung messages for EON screen brightness
+#  * (( Klemmen_Status_01 for virtual terminal 15, but goes in Panda safety ))
+#  * (( VIN_01 for auto platform ID, but probably goes in fingerprint or init ))
+
 def get_gateway_can_parser(CP, canbus):
   # this function generates lists for signal, messages and initial values
   signals = [
@@ -98,6 +112,9 @@ class CarState(object):
     self.steer_not_allowed = False
     self.main_on = False
     self.angle_steers_rate = 0
+    self.steer_error = 0
+    self.park_brake = 0
+    self.esp_disabled = 0
 
     # vEgo kalman filter
     dt = 0.01
@@ -121,12 +138,13 @@ class CarState(object):
 
     # Update turn signal status
     # TODO: Use a leading edge transition and timer to simulate real blinker state instead of momentary turnstalk
+    #  * Right place for that might be in interface rather than carstate
     self.prev_left_blinker_on = self.left_blinker_on
     self.prev_right_blinker_on = self.right_blinker_on
     self.left_blinker_on = gw_cp.vl["Gateway_72"]['BH_Blinker_li']
     self.right_blinker_on = gw_cp.vl["Gateway_72"]['BH_Blinker_re']
 
-    # Update seatbelt warning status
+    # Update seatbelt fastened status
     # TODO: Verify operation on car
     self.seatbelt = if gw_cp.vl["Airbag_02"]["AB_Gurtschloss_FA"] == 3
 
@@ -141,7 +159,7 @@ class CarState(object):
     v_ego_x = self.v_ego_kf.update(speed_estimate)
     self.v_ego = float(v_ego_x[0])
     self.a_ego = float(v_ego_x[1])
-    self.standstill = self.v_ego_raw < 0.01
+    self.standstill = self.v_ego_raw < 0.01 # TODO: Make sure this is good enough to knock out standstill HCA
 
     # Update steering angle
     if gw_cp.vl["LWI_01"]['LWI_VZ_Lenkradwinkel'] == 1:
@@ -166,7 +184,8 @@ class CarState(object):
     self.pedal_gas = gw_cp.vl["Motor_20"]['MO_Fahrpedalrohwert_01']
     self.brake_pressed = gw_cp.vl["ESP_05"]['ESP_Fahrer_bremst']
     self.brake_lights = gw_cp.vl["ESP_05"]['ESP_Status_Bremsdruck']
-    self.user_brake = gw_cp.vl["ESP_05"]['ESP_Bremsdruck']
+    self.user_brake = gw_cp.vl["ESP_05"]['ESP_Bremsdruck'] # TODO: this is pressure in Bar, not sure what OP expects
+    self.esp_disabled = gw_cp.vl["ESP_21"]['ESP_Tastung_passiv']
     can_gear_shifter = int(gw_cp.vl["Getriebe_11"]['GE_Fahrstufe'])
     self.gear_shifter = parse_gear_shifter(can_gear_shifter, self.shifter_values)
 
