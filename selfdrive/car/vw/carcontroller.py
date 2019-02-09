@@ -47,7 +47,7 @@ class CarController(object):
     # Prepare HCA_01 steering torque message
     #
     if (frame % P.STEER_STEP) == 0:
-      if enabled && not CS.standstill:
+      if enabled and not CS.standstill:
         # TODO: apply safety boundaries here for increase and decrease rates
         lkas_enabled = 1
         apply_steer = int(clip(actuators.steer * P.STEER_MAX, -P.STEER_MAX, P.STEER_MAX))
