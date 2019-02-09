@@ -146,7 +146,7 @@ class CarState(object):
 
     # Update seatbelt fastened status
     # TODO: Verify operation on car
-    self.seatbelt = if gw_cp.vl["Airbag_02"]["AB_Gurtschloss_FA"] == 3
+    self.seatbelt = 1 if gw_cp.vl["Airbag_02"]["AB_Gurtschloss_FA"] == 3 else 0
 
     # Update speed from ABS wheel speeds
     # TODO: Why aren't we using of of the perfectly good calculated speeds from the car?
