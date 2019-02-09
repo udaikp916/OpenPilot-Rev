@@ -6,18 +6,37 @@ from selfdrive.can.parser import CANParser, CANDefine
 from selfdrive.car.vw.values import DBC, CAR
 
 # TODO: additional signals
-#  * Electronic parking brake
-#  * Manual parking brake
 #  * EPS HCA support detection (throw steering error on engage if not supported)
 #  * ACC speed setpoint
 #  * ACC following distance setpoint
 #  * ACC distance to car in front
-#  * ACC ??? how to detect stop and go support from CAN ???
+#  * Test ACC sensor blind/other error to make sure OP can react clearly and promptly
 #  * GRA_ACC_01 steering wheel buttons for events, and to send cancels and speed changes
-#  * LDW_02 for Active Lane Guidance HUD in instrument cluster
+#  * Generate LDW_02 for Active Lane Guidance HUD in instrument cluster
 #  * Dimmung messages for EON screen brightness
 #  * (( Klemmen_Status_01 for virtual terminal 15, but goes in Panda safety ))
 #  * (( VIN_01 for auto platform ID, but probably goes in fingerprint or init ))
+#  * ESP_05 ESP_Autohold_aktiv provides DSG and maybe even manual auto-hold state, may be important for auto-resume
+#  * ESP_05 ESP_Verzoeg_EPB_verf may signify presence of an EPB, implying ACC stop-and-go support
+#  * EPB_01 EPB_Status and friends tell us lots about the EPB, if present, still need to track down handbrake
+#  * Kombi_01 KBI_Handbremse is a possibility for manual parking brake
+
+# TODO: Safety
+#  * Seatbelt works to disable. Turns out stock ACC doesn't care, so OP gets to handle. Need to spam ACC cancel.
+#  * Door open detection works to disable. ACC dies immediately anyway, but tested manually.
+#  * Brake pressed. Obviously knocks out stock ACC. Have not made this explicit/redundant in OP yet.
+#  * ESP disabled detection works, but stock ACC re-enables and creates a timing/conflict with OP, need to spam cancel.
+#  * Gas pressed. Trivial but haven't done yet. Will need to spam ACC cancel.
+#  * Control steering torque and ramp rate once we have a reasonable tune model.
+
+# TODO: generic platform detection
+#  * Collect 3x VIN_01 messages and detect chassis (e.g., AU=Golf Mk7) with inherent networking model
+#  * Optionally, collect Motor_Code_01 for transmission type
+
+# TODO: bus layout detection
+#  * At J533 gateway/extended? Required to have any control over ACC long term, even a "lite" model
+#  * At J242? camera? More traditional, but no possibility of controlling ACC
+#  * At J533 gateway/running gear? Needed for lowline J533. Would not have ACC anyway. May not be worth the time.
 
 def get_gateway_can_parser(CP, canbus):
   # this function generates lists for signal, messages and initial values
@@ -145,7 +164,6 @@ class CarState(object):
     self.right_blinker_on = gw_cp.vl["Gateway_72"]['BH_Blinker_re']
 
     # Update seatbelt fastened status
-    # TODO: Verify operation on car
     self.seatbelt = 1 if gw_cp.vl["Airbag_02"]["AB_Gurtschloss_FA"] == 3 else 0
 
     # Update speed from ABS wheel speeds
