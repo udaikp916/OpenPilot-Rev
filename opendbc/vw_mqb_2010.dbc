@@ -1189,12 +1189,11 @@ BO_ 919 LDW_02: 8 XXX
  SG_ Kombi_Lamp_Orange : 61|1@0+ (1,0) [0|1] "" XXX
  SG_ Kombi_Lamp_Green : 62|1@0+ (1,0) [0|1] "" XXX
  SG_ LDW_DLC : 40|8@1+ (0.01,0) [0|255] "m" XXX
+ SG_ Right_Lane_Status : 36|2@1+ (1,0) [0|1] "" XXX
+ SG_ LDW_Direction : 20|1@0+ (1,0) [0|1] "" XXX
+ SG_ Left_Lane_Status : 38|2@1+ (1,0) [0|1] "" XXX
  SG_ LDW_TLC : 48|5@1+ (0.05,0) [0|255] "Seconds" XXX
- SG_ LDW_XX_LR : 20|1@0+ (1,0) [0|1] "" XXX
- SG_ LDW_XX_Guidance1 : 36|1@0+ (1,0) [0|1] "" XXX
- SG_ LDW_XX_Guidance2 : 37|1@0+ (1,0) [0|1] "" XXX
- SG_ LDW_XX_Guidance3 : 38|1@0+ (1,0) [0|1] "" XXX
- SG_ LDW_XX_Guidance4 : 39|1@0+ (1,0) [0|1] "" XXX
+ SG_ LDW_Unknown : 15|2@0+ (1,0) [0|3] "" XXX
 
 BO_ 780 ACC_XXX_30C: 8 XXX
  SG_ ACC_30C_BZ : 8|4@1+ (1,0) [0|15] "" XXX
@@ -1207,10 +1206,4 @@ BO_ 780 ACC_XXX_30C: 8 XXX
 CM_ SG_ 294 Steer_Torque "Stock limit 300.00";
 CM_ SG_ 294 Torque_Not_0 "2 when torque is greater than 0";
 CM_ SG_ 159 XXX_Ready "Possibly a ready/ok or engine running bit, assist available, need to check";
-CM_ SG_ 919 Kombi_Lamp_Orange "Enables orange LDW light in instrument cluster";
-CM_ SG_ 919 LDW_DLC "Probable DLC (distance to line crossing)";
-CM_ SG_ 919 LDW_TLC "Probable TLC (time to line crossing)";
-CM_ SG_ 919 LDW_XX_LR "Possible left/right";
-CM_ SG_ 919 LDW_XX_Guidance1 "0 when LKAS disabled, 1 when enabled";
-CM_ SG_ 919 LDW_XX_Guidance3 "0 when LKAS disabled, 1 when enabled";
 VAL_ 173 GE_Fahrstufe 5 "P" 6 "R" 7 "N" 8 "D" 9 "S" 10 "E" 14 "T";

@@ -18,6 +18,8 @@ class CarControllerParams():
     self.STEER_DRIVER_MULTIPLIER = 1
     self.STEER_DRIVER_FACTOR = 1
 
+    self.HUD_STEP = 10                  # how often we send the LDW_02 HUD update
+
 
 
 class CarController(object):
@@ -66,7 +68,14 @@ class CarController(object):
       can_sends.append(vwcan.create_steering_control(self.packer_gw, canbus.gateway, CS.CP.carFingerprint, steer, idx, lkas_enabled, right))
 
     #
-    # TODO: Prepare LDW_02 HUD message with lane lines and confidence levels
+    # Prepare LDW_02 HUD message with lane lines and confidence levels
+    # TODO: Include lane recognition confidence levels instead of statically turning lane-lines on
     #
+    if (frame % P.HUD_STEP) == 0:
+      if enabled and not CS.standstill:
+        lkas_enabled = 1
+      else:
+        lkas_enabled = 0
+      can_sends.append(vwcan.create_hud_control(self.packer_gw, canbus.gateway, CS.CP.carFingerprint, lkas_enabled))
 
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())

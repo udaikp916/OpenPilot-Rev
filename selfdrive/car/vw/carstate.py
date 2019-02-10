@@ -14,6 +14,7 @@ from selfdrive.car.vw.values import DBC, CAR
 #  * GRA_ACC_01 steering wheel buttons for events, and to send cancels and speed changes
 #  * Generate LDW_02 for Active Lane Guidance HUD in instrument cluster
 #  * Dimmung messages for EON screen brightness
+#  * Einheiten_01 for metric
 #  * (( Klemmen_Status_01 for virtual terminal 15, but goes in Panda safety ))
 #  * (( VIN_01 for auto platform ID, but probably goes in fingerprint or init ))
 #  * ESP_05 ESP_Autohold_aktiv provides DSG and maybe even manual auto-hold state, may be important for auto-resume
@@ -167,7 +168,7 @@ class CarState(object):
     self.seatbelt = 1 if gw_cp.vl["Airbag_02"]["AB_Gurtschloss_FA"] == 3 else 0
 
     # Update speed from ABS wheel speeds
-    # TODO: Why aren't we using of of the perfectly good calculated speeds from the car?
+    # TODO: Why aren't we using one of the perfectly good calculated speeds from the car?
     self.v_wheel_fl = gw_cp.vl["ESP_19"]['ESP_HL_Radgeschw_02'] * CV.KPH_TO_MS
     self.v_wheel_fr = gw_cp.vl["ESP_19"]['ESP_HR_Radgeschw_02'] * CV.KPH_TO_MS
     self.v_wheel_rl = gw_cp.vl["ESP_19"]['ESP_VL_Radgeschw_02'] * CV.KPH_TO_MS

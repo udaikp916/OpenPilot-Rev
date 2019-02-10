@@ -34,11 +34,15 @@ static int vw_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   // forward messages from extended to car
   else if (bus_num == 1) {
     
-    //filter 0x126 from being forwarded
+    // Filter 0x126 HCA_01 for steering control in favor of our own
     if (addr == 0x126) {
       return -1;
     }
-    
+    // Filter 0x397 LDW_02 for HUD status in favor of our own
+    if (addr == 0x397) {
+      return -1;
+    }
+
     return 0; //car 
   }
 

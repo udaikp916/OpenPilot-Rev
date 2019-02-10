@@ -24,3 +24,13 @@ def create_steering_control(packer, bus, car_fingerprint, steer, idx, lkas_enabl
   checksum = vw_checksum(dat)
   values["CRC"] = checksum
   return packer.make_can_msg("LKAS", 0, values)
+
+def create_hud_control(packer, bus, car_fingerprint, lkas_enabled):
+  values = {
+    "LDW_Unknown": 2, # FIXME: some manner of speed relationship
+    "Kombi_Lamp_Orange": 1 if lkas_enabled == 0 else 0,
+    "Kombi_Lamp_Green": 1 if lkas_enabled == 1 else 0,
+    "Right_Lane_Status": 3 if lkas_enabled == 1 else 1,
+    "Left_Lane_Status": 3 if lkas_enabled == 1 else 1,
+  }
+  return packer.make_can_msg("LDW_02", 0, values)
