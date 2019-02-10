@@ -12,9 +12,7 @@ from selfdrive.car.vw.values import DBC, CAR
 #  * ACC distance to car in front
 #  * Test ACC sensor blind/other error to make sure OP can react clearly and promptly
 #  * GRA_ACC_01 steering wheel buttons for events, and to send cancels and speed changes
-#  * Generate LDW_02 for Active Lane Guidance HUD in instrument cluster
 #  * Dimmung messages for EON screen brightness
-#  * Einheiten_01 for metric
 #  * (( Klemmen_Status_01 for virtual terminal 15, but goes in Panda safety ))
 #  * (( VIN_01 for auto platform ID, but probably goes in fingerprint or init ))
 #  * ESP_05 ESP_Autohold_aktiv provides DSG and maybe even manual auto-hold state, may be important for auto-resume
@@ -36,38 +34,41 @@ from selfdrive.car.vw.values import DBC, CAR
 
 # TODO: bus layout detection
 #  * At J533 gateway/extended? Required to have any control over ACC long term, even a "lite" model
-#  * At J242? camera? More traditional, but no possibility of controlling ACC
-#  * At J533 gateway/running gear? Needed for lowline J533. Would not have ACC anyway. May not be worth the time.
+#  * At R242 camera? More traditional, but no possibility of controlling ACC
+#  * At J533 gateway/running gear? Needed for lowline J533 in cars without ACC. Will fingerprint differently.
+# FIXME: Temporarily use a hardcoded J533 vs R242 location during development.
+CONNECTED_TO_GATEWAY = True
 
 def get_gateway_can_parser(CP, canbus):
   # this function generates lists for signal, messages and initial values
   signals = [
     # sig_name, sig_address, default
-    ("LWI_Lenkradwinkel", "LWI_01", 0),         # Absolute steering angle
-    ("LWI_VZ_Lenkradwinkel", "LWI_01", 0),      # Steering angle sign
-    ("LWI_Lenkradw_Geschw", "LWI_01", 0),       # Absolute steering rate
-    ("LWI_VZ_Lenkradw_Geschw", "LWI_01", 0),    # Steering rate sign
-    ("ESP_HL_Radgeschw_02", "ESP_19", 0),       # ABS wheel speed, rear left
-    ("ESP_HR_Radgeschw_02", "ESP_19", 0),       # ABS wheel speed, rear right
-    ("ESP_VL_Radgeschw_02", "ESP_19", 0),       # ABS wheel speed, front left
-    ("ESP_VR_Radgeschw_02", "ESP_19", 0),       # ABS wheel speed, front right
-    ("ZV_FT_offen", "Gateway_72", 0),           # Door open, driver
-    ("ZV_BT_offen", "Gateway_72", 0),           # Door open, passenger
-    ("ZV_HFS_offen", "Gateway_72", 0),          # Door open, rear left
-    ("ZV_HBFS_offen", "Gateway_72", 0),         # Door open, rear right
-    ("ZV_HD_offen", "Gateway_72", 0),           # Trunk or hatch open
-    ("BH_Blinker_li", "Gateway_72", 0),         # Left turn signal on
-    ("BH_Blinker_re", "Gateway_72", 0),         # Right turn signal on
-    ("GE_Fahrstufe", "Getriebe_11", 0),         # Transmission gear selector position
-    ("AB_Gurtschloss_FA", "Airbag_02", 0),      # Seatbelt status, driver
-    ("AB_Gurtschloss_BF", "Airbag_02", 0),      # Seatbelt status, passenger
-    ("ESP_Fahrer_bremst", "ESP_05", 0),         # Brake pedal pressed
-    ("ESP_Status_Bremsdruck", "ESP_05", 0),     # Brakes applied
-    ("ESP_Bremsdruck", "ESP_05", 0),            # Brake pressure applied
-    ("MO_Fahrpedalrohwert_01", "Motor_20", 0),  # Accelerator pedal value
-    ("Driver_Strain", "EPS_01", 0),             # Absolute driver torque input
-    ("Driver_Strain_VZ", "EPS_01", 0),          # Driver torque input sign
-    ("ESP_Tastung_passiv", "ESP_21", 0),        # Stability control disabled
+    ("LWI_Lenkradwinkel", "LWI_01", 0),           # Absolute steering angle
+    ("LWI_VZ_Lenkradwinkel", "LWI_01", 0),        # Steering angle sign
+    ("LWI_Lenkradw_Geschw", "LWI_01", 0),         # Absolute steering rate
+    ("LWI_VZ_Lenkradw_Geschw", "LWI_01", 0),      # Steering rate sign
+    ("ESP_HL_Radgeschw_02", "ESP_19", 0),         # ABS wheel speed, rear left
+    ("ESP_HR_Radgeschw_02", "ESP_19", 0),         # ABS wheel speed, rear right
+    ("ESP_VL_Radgeschw_02", "ESP_19", 0),         # ABS wheel speed, front left
+    ("ESP_VR_Radgeschw_02", "ESP_19", 0),         # ABS wheel speed, front right
+    ("ZV_FT_offen", "Gateway_72", 0),             # Door open, driver
+    ("ZV_BT_offen", "Gateway_72", 0),             # Door open, passenger
+    ("ZV_HFS_offen", "Gateway_72", 0),            # Door open, rear left
+    ("ZV_HBFS_offen", "Gateway_72", 0),           # Door open, rear right
+    ("ZV_HD_offen", "Gateway_72", 0),             # Trunk or hatch open
+    ("BH_Blinker_li", "Gateway_72", 0),           # Left turn signal on
+    ("BH_Blinker_re", "Gateway_72", 0),           # Right turn signal on
+    ("GE_Fahrstufe", "Getriebe_11", 0),           # Transmission gear selector position
+    ("AB_Gurtschloss_FA", "Airbag_02", 0),        # Seatbelt status, driver
+    ("AB_Gurtschloss_BF", "Airbag_02", 0),        # Seatbelt status, passenger
+    ("ESP_Fahrer_bremst", "ESP_05", 0),           # Brake pedal pressed
+    ("ESP_Status_Bremsdruck", "ESP_05", 0),       # Brakes applied
+    ("ESP_Bremsdruck", "ESP_05", 0),              # Brake pressure applied
+    ("MO_Fahrpedalrohwert_01", "Motor_20", 0),    # Accelerator pedal value
+    ("Driver_Strain", "EPS_01", 0),               # Absolute driver torque input
+    ("Driver_Strain_VZ", "EPS_01", 0),            # Driver torque input sign
+    ("ESP_Tastung_passiv", "ESP_21", 0),          # Stability control disabled
+    ("KBI_MFA_v_Einheit_02", "Einheiten_01", 0),  # MPH vs KMH speed display
   ]
 
   checks = [
@@ -81,7 +82,13 @@ def get_gateway_can_parser(CP, canbus):
     ("Gateway_72", 10),   # From J533 CAN gateway (aggregated data)
     ("Getriebe_11", 20),  # From J743 Auto transmission control module
     ("Airbag_02", 5),     # From J234 Airbag control module
+    ("Einheiten_01", 1),  # From J??? not known if gateway, cluster, or BCM
   ]
+
+  # FIXME: Temporarily use a hardcoded J533 vs R242 location during development.
+  if not CONNECTED_TO_GATEWAY:
+    signals += [("ACC_Status_ACC", "ACC_06", 0)] # ACC engagement status
+    checks += [("ACC_06", 50)]  # From J428 ACC radar control module
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, canbus.gateway)
 
@@ -90,13 +97,16 @@ def get_extended_can_parser(CP, canbus):
 
   signals = [
     # sig_name, sig_address, default
-    ("ACC_Status_ACC", "ACC_06", 0),             # ACC engagement status
   ]
 
   checks = [
     # sig_address, frequency
-    ("ACC_06", 50),       # From J428 ACC radar control module
   ]
+
+  # FIXME: Temporarily use a hardcoded J533 vs R242 location during development.
+  if CONNECTED_TO_GATEWAY:
+    signals += [("ACC_Status_ACC", "ACC_06", 0)]  # ACC engagement status
+    checks += [("ACC_06", 50)]  # From J428 ACC radar control module
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, canbus.extended)
 
@@ -135,6 +145,7 @@ class CarState(object):
     self.steer_error = 0
     self.park_brake = 0
     self.esp_disabled = 0
+    self.is_metric = 0
 
     # vEgo kalman filter
     dt = 0.01
@@ -148,6 +159,11 @@ class CarState(object):
 
     # FIXME: What does can_valid imply? Make sure we're handling it safely.
     self.can_valid = True
+
+    # Update driver preference for metric. VW stores many different unit
+    # preferences, including separate units for for distance vs. speed.
+    # We use the speed preference for OP.
+    self.is_metric = not gw_cp.vl["Einheiten_01"]["KBI_MFA_v_Einheit_02"]
 
     # Update door and trunk/hatch lid open status
     self.door_all_closed = not any([gw_cp.vl["Gateway_72"]['ZV_FT_offen'],

@@ -27,7 +27,7 @@ def create_steering_control(packer, bus, car_fingerprint, steer, idx, lkas_enabl
 
 def create_hud_control(packer, bus, car_fingerprint, lkas_enabled):
   values = {
-    "LDW_Unknown": 2, # FIXME: some manner of speed relationship
+    "LDW_Unknown": 2, # FIXME: possible speed or attention relationship
     "Kombi_Lamp_Orange": 1 if lkas_enabled == 0 else 0,
     "Kombi_Lamp_Green": 1 if lkas_enabled == 1 else 0,
     "Right_Lane_Status": 3 if lkas_enabled == 1 else 1,

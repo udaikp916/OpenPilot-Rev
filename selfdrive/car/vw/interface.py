@@ -6,6 +6,7 @@ from selfdrive.controls.lib.drive_helpers import create_event, EventTypes as ET
 from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.car.vw.values import DBC, CAR
 from selfdrive.car.vw.carstate import CarState, get_gateway_can_parser, get_extended_can_parser
+from common.params import Params
 
 try:
   from selfdrive.car.vw.carcontroller import CarController
@@ -65,11 +66,11 @@ class CarInterface(object):
       ret.centerToFront = ret.wheelbase * 0.5
 
       ret.steerRatio = 14
-      ret.steerActuatorDelay = 0.1
+      ret.steerActuatorDelay = 0.05
       ret.steerRateCost = 0.5
-      ret.steerKf = 0.00006
+      ret.steerKf = 0.00007
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
-      ret.steerKpV, ret.steerKiV = [[0.375], [0.15]]
+      ret.steerKpV, ret.steerKiV = [[0.5], [0.2]]
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
@@ -141,6 +142,8 @@ class CarInterface(object):
   def update(self, c):
     canMonoTimes = []
 
+    params = Params()
+
     self.gw_cp.update(int(sec_since_boot() * 1e9), False)
     self.ex_cp.update(int(sec_since_boot() * 1e9), False)
     self.CS.update(self.gw_cp, self.ex_cp)
@@ -184,6 +187,11 @@ class CarInterface(object):
     ret.brakePressed = bool(self.CS.brake_pressed)
     ret.brakeLights = bool(self.CS.brake_lights)
     ret.gearShifter = self.CS.gear_shifter
+
+    # Obey vehicle setting for metric, update configuration DB if there is a mismatch
+    is_metric = params.get("IsMetric") == "1"
+    if(is_metric != self.CS.is_metric)
+      params.put("IsMetric", is_metric)
 
     buttonEvents = []
 
