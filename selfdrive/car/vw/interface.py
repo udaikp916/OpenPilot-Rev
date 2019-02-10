@@ -191,7 +191,7 @@ class CarInterface(object):
     # Obey vehicle setting for metric, update configuration DB if there is a mismatch
     is_metric = params.get("IsMetric") == "1"
     if(is_metric != self.CS.is_metric):
-      params.put("IsMetric", is_metric)
+      params.put("IsMetric", "1" if self.CS.is_metric == 1 else "0")
 
     buttonEvents = []
 
