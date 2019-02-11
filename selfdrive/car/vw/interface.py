@@ -6,6 +6,7 @@ from selfdrive.controls.lib.drive_helpers import create_event, EventTypes as ET
 from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.car.vw.values import DBC, CAR
 from selfdrive.car.vw.carstate import CarState, get_gateway_can_parser, get_extended_can_parser
+from common.params import Params
 
 try:
   from selfdrive.car.vw.carcontroller import CarController
@@ -65,11 +66,11 @@ class CarInterface(object):
       ret.centerToFront = ret.wheelbase * 0.5
 
       ret.steerRatio = 14
-      ret.steerActuatorDelay = 0.1
+      ret.steerActuatorDelay = 0.05
       ret.steerRateCost = 0.5
-      ret.steerKf = 0.00006
+      ret.steerKf = 0.00007
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
-      ret.steerKpV, ret.steerKiV = [[0.375], [0.1]]
+      ret.steerKpV, ret.steerKiV = [[0.5], [0.2]]
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
@@ -139,6 +140,9 @@ class CarInterface(object):
 
   # returns a car.CarState
   def update(self, c):
+    canMonoTimes = []
+
+    params = Params()
 
     self.gw_cp.update(int(sec_since_boot() * 1e9), False)
     self.ex_cp.update(int(sec_since_boot() * 1e9), False)
@@ -172,8 +176,22 @@ class CarInterface(object):
     ret.leftBlinker = bool(self.CS.left_blinker_on)
     ret.rightBlinker = bool(self.CS.right_blinker_on)
 
-    # doors open
+    # doors open, seatbelt unfastened
     ret.doorOpen = not self.CS.door_all_closed
+    ret.seatbeltUnlatched = not self.CS.seatbelt
+
+    # Gas, brakes and shifting
+    ret.gas = self.CS.pedal_gas / 100
+    ret.gasPressed = self.CS.pedal_gas > 0
+    ret.brake = self.CS.user_brake / 250 # FIXME: approximated, verify
+    ret.brakePressed = bool(self.CS.brake_pressed)
+    ret.brakeLights = bool(self.CS.brake_lights)
+    ret.gearShifter = self.CS.gear_shifter
+
+    # Obey vehicle setting for metric, update configuration DB if there is a mismatch
+    is_metric = params.get("IsMetric") == "1"
+    if(is_metric != self.CS.is_metric):
+      params.put("IsMetric", "1" if self.CS.is_metric == 1 else "0")
 
     buttonEvents = []
 
@@ -218,11 +236,29 @@ class CarInterface(object):
       if b.type == "cancel" and b.pressed:
         events.append(create_event('buttonCancel', [ET.USER_DISABLE]))
 
+    # TODO: JY events in progress
+    if not ret.gearShifter == 'drive':
+      events.append(create_event('wrongGear', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
+    if ret.doorOpen:
+      events.append(create_event('doorOpen', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
+    if ret.gearShifter == 'reverse':
+      events.append(create_event('reverseGear', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE]))
+    if ret.gasPressed:
+      events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
+    if ret.seatbeltUnlatched:
+      events.append(create_event('seatbeltNotLatched', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
+    if self.CS.esp_disabled:
+      events.append(create_event('espDisabled', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
+    if self.CS.steer_error:
+      events.append(create_event('steerUnavailable', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE, ET.PERMANENT]))
+    if self.CS.park_brake:
+      events.append(create_event('parkBrake', [ET.NO_ENTRY, ET.USER_DISABLE]))
+
     ret.events = events
+    ret.canMonoTimes = canMonoTimes
 
     # update previous brake/gas pressed
     self.acc_active_prev = self.CS.acc_active
-
 
     # cast to reader so it can't be modified
     return ret.as_reader()
