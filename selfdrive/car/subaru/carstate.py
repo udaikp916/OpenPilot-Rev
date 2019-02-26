@@ -25,7 +25,7 @@ def get_powertrain_can_parser(CP, canbus):
     ("DOOR_OPEN_FL", "DOORS_STATUS", 0),
     ("DOOR_OPEN_RR", "DOORS_STATUS", 0),
     ("DOOR_OPEN_RL", "DOORS_STATUS", 0),
-    ("DOOR_OPEN_HATCH", "DOORS_STATUS", 0),
+    ("DOOR_OPEN_Hatch", "DOORS_STATUS", 0),
     ("Throttle_Pedal", "Throttle", 0),
     ("Brake_Pedal", "Brake_Pedal", 0),
   ]
