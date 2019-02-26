@@ -189,7 +189,7 @@ class CarInterface(object):
     ret.rightBlinker = self.CS.right_blinker_on
     ret.gearShifter = self.CS.gear_shifter
 
-    ret.gas = self.CS.car_gas
+    ret.gas = self.CS.pedal_gas
 
     ret.gasPressed = self.CS.pedal_gas > 0
     ret.brake = self.CS.brake_pressure
