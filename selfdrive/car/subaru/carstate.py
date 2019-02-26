@@ -125,7 +125,7 @@ class CarState(object):
     self.brake_lights = bool(self.brake_pressed)
     self.door_open = any([pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_RR'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_RL'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_FR'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_FL'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_Hatch']])
 
-    gear = cp.vl["Transmission"]["Gear"]
+    gear = pt_cp.vl["Transmission"]["Gear"]
     if gear == 0:
       self.gear_shifter = "neutral"
     elif gear == 15:
