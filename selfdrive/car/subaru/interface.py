@@ -199,7 +199,7 @@ class CarInterface(object):
 
     ret.cruiseState.speed = self.CS.cruise_set_speed
     ret.cruiseState.standstill = False
-    ret.doorOpen = self.door_open
+    ret.doorOpen = self.CS.door_open
 
     buttonEvents = []
 
