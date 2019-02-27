@@ -28,6 +28,7 @@ def get_powertrain_can_parser(CP, canbus):
     ("DOOR_OPEN_Hatch", "DOORS_STATUS", 0),
     ("Throttle_Pedal", "Throttle", 0),
     ("Brake_Pedal", "Brake_Pedal", 0),
+    ("NEW_SIGNAL_2", "Brake_Pedal", 0),
   ]
 
   checks = [
@@ -104,6 +105,7 @@ class CarState(object):
     self.acc_active = es_cp.vl["ES_Status"]['Cruise_Activated'] or es_cp.vl["ES_LDW"]['1All_Depart']
     self.main_on = es_cp.vl["ES_Status"]['Cruise_On']
     self.cruise_set_speed = es_cp.vl["ES_Status"]['Saved_Speed']
+    self.brake_change = pt_cp.vl["NEW_SIGNAL_2"]['Brake_Pedal']
 
     if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
       self.steer_override = abs(self.steer_torque_driver) > 1.5
