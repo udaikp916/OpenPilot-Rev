@@ -97,7 +97,8 @@ class CarController(object):
         else
           brake = CS.brake_pressure 
         speed = CS.v_ego * 3.6
-        can_sends.append(subarucan.create_brake_control(self.packer_pt, canbus.eyesight, CS.CP.carFingerprint, brake, speed))
+        change = CS.brake_change 
+        can_sends.append(subarucan.create_brake_control(self.packer_pt, canbus.eyesight, CS.CP.carFingerprint, brake, speed, change))
 
       sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
 
