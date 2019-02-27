@@ -101,8 +101,8 @@ class CarState(object):
     self.left_blinker_on = pt_cp.vl["Dashlights"]['LEFT_BLINKER'] == 1
     self.right_blinker_on = pt_cp.vl["Dashlights"]['RIGHT_BLINKER'] == 1
     self.steer_torque_driver = pt_cp.vl["Steering_Torque"]['Steer_Torque_Sensor']
-    self.acc_active = pt_cp.vl["ES_Status"]['Cruise_Activated'] or es_cp.vl["ES_LDW"]['1All_Depart']
-    self.main_on = pt_cp.vl["ES_Status"]['Cruise_On']
+    self.acc_active = es_cp.vl["ES_Status"]['Cruise_Activated'] or es_cp.vl["ES_LDW"]['1All_Depart']
+    self.main_on = es_cp.vl["ES_Status"]['Cruise_On']
     self.cruise_set_speed = es_cp.vl["ES_Status"]['Saved_Speed']
 
     if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
