@@ -11,7 +11,7 @@ def create_steering_control(packer, bus, car_fingerprint, idx, steer, checksum):
     }
     return packer.make_can_msg("ES_LKAS", 0, values)
 
-  def create_brake_control(packer, bus, car_fingerprint, brake, speed, change):
+def create_brake_control(packer, bus, car_fingerprint, brake, speed, change):
   if car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
 
     values = {
