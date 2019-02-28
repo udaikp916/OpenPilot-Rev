@@ -2,7 +2,6 @@ from selfdrive.car.subaru.values import CAR, DBC
 
 def create_steering_control(packer, bus, car_fingerprint, idx, steer, checksum):
   if car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
-
     values = {
       "Counter": idx,
       "LKAS_Output": steer,
@@ -13,12 +12,11 @@ def create_steering_control(packer, bus, car_fingerprint, idx, steer, checksum):
 
 def create_brake_control(packer, bus, car_fingerprint, brake, speed, change):
   if car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
-
     values = {
       "Brake_Pedal": brake,
       "Speed": speed,
       "NEW_SIGNAL_1": 1,
-      "NEW_SIGNAL_2": change
+      "NEW_SIGNAL_2": change,
     }
     return packer.make_can_msg("Brake_Pedal", 1, values)
 
