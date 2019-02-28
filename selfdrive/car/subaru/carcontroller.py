@@ -94,7 +94,7 @@ class CarController(object):
 
         if not enabled and CS.acc_active == 1:
           brake = 1
-        else
+        else:
           brake = CS.brake_pressure 
         speed = CS.v_ego * 3.6
         change = CS.brake_change 
