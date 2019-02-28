@@ -105,7 +105,7 @@ class CarState(object):
     self.acc_active = es_cp.vl["ES_Status"]['Cruise_Activated'] or es_cp.vl["ES_LDW"]['1All_Depart']
     self.main_on = es_cp.vl["ES_Status"]['Cruise_On']
     self.cruise_set_speed = es_cp.vl["ES_Status"]['Saved_Speed']
-    self.brake_change = pt_cp.vl["NEW_SIGNAL_2"]['Brake_Pedal']
+    self.brake_change = pt_cp.vl["Brake_Pedal"]['NEW_SIGNAL_2']
 
     if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
       self.steer_override = abs(self.steer_torque_driver) > 1.5
