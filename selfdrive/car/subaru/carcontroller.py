@@ -92,16 +92,11 @@ class CarController(object):
 
         can_sends.append(subarucan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, idx, apply_steer, checksum))
 
-        if not enabled and CS.acc_active == 1:
-          brake = 1
-        else:
-          brake = CS.brake_pressure
-        speed = CS.brake_speed
-        change = CS.brake_change
+    if not enabled and CS.acc_active == 1:
+      can_sends.append(subarucan.create_seatbelt_control(self.packer_pt, canbus.eyesight, CS.CP.carFingerprint))
 
-        can_sends.append(subarucan.create_brake_control(self.packer_pt, canbus.eyesight, CS.CP.carFingerprint, brake, speed, change))
 
-      sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
+    sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
 
 '''
       if (self.car_fingerprint == CAR.XV2018):

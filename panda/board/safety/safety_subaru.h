@@ -22,10 +22,6 @@ static int subaru_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
   // forward CAN 0 > 1
   if (bus_num == 0) {
-    //Block brake message
-    if (addr == 0xD1) {
-      return -1;
-    }
     return 1; // ES CAN
   }
   // forward CAN 1 > 0, except ES_LKAS
