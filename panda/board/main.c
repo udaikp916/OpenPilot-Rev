@@ -561,6 +561,7 @@ int main() {
   // default to silent mode to prevent issues with Ford
   safety_set_mode(SAFETY_SUBARU, 0);
   can_silent = ALL_CAN_LIVE;
+  // hardcode a specific safety mode if you want to force the panda to be in a specific mode
   can_init_all();
 
   adc_init();

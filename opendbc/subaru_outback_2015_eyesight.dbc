@@ -51,8 +51,9 @@ BO_ 208 G_Sensor: 8 XXX
  SG_ _Latitudinal : 16|16@1- (0.0035,1) [0|65535] "" XXX
  SG_ _Longitudinal : 48|16@1- (0.000035,0) [0|255] "" XXX
 
-BO_ 209 Brake_Pedal: 4 XXX
+BO_ 209 Brake_Pedal: 8 XXX
  SG_ NEW_SIGNAL_2 : 31|1@1+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_3 : 56|8@1+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_1 : 26|1@1+ (1,0) [0|3] "" XXX
  SG_ Brake_Pedal : 23|8@0+ (1,0) [0|255] "" XXX
  SG_ Speed : 0|16@1+ (0.05625,0) [0|255] "KPH" XXX
@@ -367,5 +368,3 @@ CM_ SG_ 880 NEW_SIGNAL_4_2017 "1 in 2017";
 CM_ SG_ 880 NEW_SIGNAL_5_2017 "1 in 2017";
 CM_ SG_ 881 Steering_Motor_Flat "Possibly motor voltage";
 CM_ SG_ 881 Steering_Angle "Missing extra larger bits";
-
-CM_ "CHFFR_METRIC 2 STEER_ANGLE STEER_ANGLE 0.36 180";
