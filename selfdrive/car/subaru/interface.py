@@ -38,7 +38,7 @@ class CarInterface(object):
     # sending if read only is False
     if sendcan is not None:
       self.sendcan = sendcan
-      self.CC = CarController(canbus, CP.carFingerprint)
+      self.CC = CarController(canbus, CP.carFingerprint, CP.enableCamera)
 
   @staticmethod
   def compute_gb(accel, speed):
@@ -188,8 +188,6 @@ class CarInterface(object):
     ret.cruiseState.speed = self.CS.cruise_set_speed
     ret.cruiseState.standstill = False
     ret.doorOpen = self.CS.door_open
-    ret.brake_change = self.CS.brake_change
-    ret.brake_speed = self.CS.brake_speed
 
     buttonEvents = []
 
