@@ -60,47 +60,36 @@ class CarInterface(object):
     # TODO: gate this on detection
     ret.enableCamera = True
     std_cargo = 136
+    ret.mass = 1568 + std_cargo
+    ret.wheelbase = 2.75
+    ret.centerToFront = ret.wheelbase * 0.5
 
+    ret.steerRatio = 14
+    ret.steerActuatorDelay = 0.2
+    ret.steerRateCost = 1
+    ret.steerKf = 0.00005
+    ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
+    ret.steerKpV, ret.steerKiV = [[0.02], [0.003]]
+    ret.steerMaxBP = [0.] # m/s
+    ret.steerMaxV = [1.]
     if candidate == CAR.OUTBACK:
-      ret.mass = 1568 + std_cargo
-      ret.wheelbase = 2.75
-      ret.centerToFront = ret.wheelbase * 0.5
-
       ret.steerRatio = 14
-      ret.steerActuatorDelay = 0.2
-      ret.steerRateCost = 0
       ret.steerKf = 0.00005
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
       ret.steerKpV, ret.steerKiV = [[0.02], [0.003]]
-      ret.steerMaxBP = [0.] # m/s
-      ret.steerMaxV = [1.]
-    elif candidate == CAR.LEGACY:
-      ret.mass = 1568 + std_cargo
-      ret.wheelbase = 2.75
-      ret.centerToFront = ret.wheelbase * 0.5
 
+    elif candidate == CAR.LEGACY:
       ret.steerRatio = 14.5
-      ret.steerActuatorDelay = 0.2
-      ret.steerRateCost = 0
       ret.steerKf = 0.00005
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
       ret.steerKpV, ret.steerKiV = [[0.02], [0.003]]
-      ret.steerMaxBP = [0.] # m/s
-      ret.steerMaxV = [1.]
 
     elif candidate in [CAR.XV2018]:
-      ret.mass = 1568 + std_cargo
-      ret.wheelbase = 2.75
-      ret.centerToFront = ret.wheelbase * 0.5
-
-      ret.steerRatio = 14
-      ret.steerActuatorDelay = 0.1
-      ret.steerRateCost = 1
+      ret.steerRatio = 14.5
       ret.steerKf = 0.00002
-      ret.steerKiBP, ret.steerKpBP = [[0.], [0.]]
+      ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
       ret.steerKpV, ret.steerKiV = [[0.02], [0.003]]
-      ret.steerMaxBP = [0.] # m/s
-      ret.steerMaxV = [1.]
+
 
     tire_stiffness_factor = 0.55
     ret.safetyModel = car.CarParams.SafetyModels.subaru
@@ -109,7 +98,7 @@ class CarInterface(object):
     ret.steerRatioRear = 0.
     # testing tuning
 
-    # FIXME: from gm
+    # FIXME: dummy values to receive actuator signals
     ret.gasMaxBP = [0.]
     ret.gasMaxV = [.5]
     ret.brakeMaxBP = [0.]
@@ -118,14 +107,13 @@ class CarInterface(object):
     ret.longPidDeadzoneBP = [0.]
     ret.longPidDeadzoneV = [0.]
 
-    ret.longitudinalKpBP = [5., 35.]
-    ret.longitudinalKpV = [2.4, 1.5]
+    ret.longitudinalKpBP = [5., 3.]
+    ret.longitudinalKpV = [2, 1]
     ret.longitudinalKiBP = [0.]
-    ret.longitudinalKiV = [0.36]
+    ret.longitudinalKiV = [0.3]
 
     ret.stoppingControl = True
     ret.startAccel = 0.8
-    # end from gm
 
     # hardcoding honda civic 2016 touring params so they can be used to
     # scale unknown params for other cars
