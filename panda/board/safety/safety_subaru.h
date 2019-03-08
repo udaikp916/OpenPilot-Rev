@@ -80,7 +80,23 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
         subaru_ts_last = ts;
       }
     }
+    // no torque if controls is not allowed
+    if (!controls_allowed && (desired_torque != 0)) {
+      violation = 1;
+    }
+
+    // reset to 0 if either controls is not allowed or there's a violation
+    if (violation || !controls_allowed) {
+      subaru_desired_torque_last = 0;
+      subaru_rt_torque_last = 0;
+      subaru_ts_last = ts;
+    }
+
+    if (violation) {
+      return false;
+    }
   }
+
   if (addr == 290) {
     int desired_torque = ((to_send->RDLR >> 16) & 0x1fff);
     int violation = 0;
@@ -107,32 +123,6 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
         subaru_ts_last = ts;
       }
     }
-  }
-
-    if (controls_allowed) {
-
-      // *** global torque limit check ***
-      violation |= max_limit_check(desired_torque, SUBARU_MAX_STEER, -SUBARU_MAX_STEER);
-
-      // *** torque rate limit check ***
-      violation |= driver_limit_check(desired_torque, subaru_desired_torque_last, &subaru_torque_driver,
-        SUBARU_MAX_STEER, SUBARU_MAX_RATE_UP, SUBARU_MAX_RATE_DOWN,
-        SUBARU_DRIVER_TORQUE_ALLOWANCE, SUBARU_DRIVER_TORQUE_FACTOR);
-
-      // used next time
-      subaru_desired_torque_last = desired_torque;
-
-      // *** torque real time rate limit check ***
-      violation |= rt_rate_limit_check(desired_torque, subaru_rt_torque_last, SUBARU_MAX_RT_DELTA);
-
-      // every RT_INTERVAL set the new limits
-      uint32_t ts_elapsed = get_ts_elapsed(ts, subaru_ts_last);
-      if (ts_elapsed > SUBARU_RT_INTERVAL) {
-        subaru_rt_torque_last = desired_torque;
-        subaru_ts_last = ts;
-      }
-    }
-
     // no torque if controls is not allowed
     if (!controls_allowed && (desired_torque != 0)) {
       violation = 1;
@@ -148,6 +138,8 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
     if (violation) {
       return false;
     }
+
+  }
 
   // True allows the message through
   return true;
