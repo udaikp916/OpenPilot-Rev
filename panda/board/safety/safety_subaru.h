@@ -19,7 +19,7 @@ void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
   // sets driver torque
   if (addr == 881) {
-    int torque_driver_new = ((to_push->RDLR >> 39) & 0xff);
+    int torque_driver_new = ((to_push->RDLR >> 32) & 0xff);
     update_sample(&subaru_torque_driver, torque_driver_new);
   }
   if (addr == 281) {
