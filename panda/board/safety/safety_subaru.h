@@ -18,24 +18,27 @@ void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   addr = to_push->RIR >> 21;
 
   // sets driver torque
-  if (addr == 881 || 281) {
-    if (addr == 881) {
-      int torque_driver_new = ((to_push->RDLR >> 32) & 0xff);
-    } else if (addr == 281) {
-      int torque_driver_new = ((to_push->RDLR >> 19) & 0xff);
-    }
-    // update array of samples
+  if (addr == 881) {
+    int torque_driver_new = ((to_push->RDLR >> 32) & 0xff);
+    update_sample(&subaru_torque_driver, torque_driver_new);
+  }
+  if (addr == 281) {
+    int torque_driver_new = ((to_push->RDLR >> 19) & 0xff);
     update_sample(&subaru_torque_driver, torque_driver_new);
   }
 
   // enter controls on rising edge of ACC, exit controls on ACC off
-  if (addr == 358 || 546) {
-    if (addr == 358) {
-      int cruise_engaged = (to_push->RDLR >> 17) & 0x1;
+  if (addr == 358) {
+    int cruise_engaged = (to_push->RDLR >> 17) & 0x1;
+    if (cruise_engaged && !subaru_cruise_engaged_last) {
+      controls_allowed = 1;
+    } else if (!cruise_engaged) {
+      controls_allowed = 0;
     }
-    if (addr == 546) {
-      int cruise_engaged = (to_push->RDLR >> 29) & 0x1;
-    }
+    subaru_cruise_engaged_last = cruise_engaged;
+  }
+  if (addr == 546) {
+    int cruise_engaged = (to_push->RDLR >> 29) & 0x1;
     if (cruise_engaged && !subaru_cruise_engaged_last) {
       controls_allowed = 1;
     } else if (!cruise_engaged) {
