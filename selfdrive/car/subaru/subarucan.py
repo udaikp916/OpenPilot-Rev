@@ -16,7 +16,7 @@ def create_steering_control(packer, bus, car_fingerprint, idx, steer, checksum):
       "Checksum": checksum,
       "SET_1": 1
     }
-    return packer.make_can_msg("ES_LKAS", 0, values)
+  return packer.make_can_msg("ES_LKAS", 0, values)
 
 def create_door_control(packer, bus, car_fingerprint):
     values = {
