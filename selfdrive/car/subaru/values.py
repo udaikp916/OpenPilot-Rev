@@ -31,5 +31,5 @@ FINGERPRINTS = {
 DBC = {
   CAR.OUTBACK: dbc_dict('subaru_outback_2015_eyesight', None),
   CAR.LEGACY: dbc_dict('subaru_outback_2015_eyesight', None),
-  CAR.XV: dbc_dict('subaru_xv_2018_eyesight', None),
+  CAR.XV: dbc_dict('subaru_global', None),
 }
