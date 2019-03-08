@@ -51,10 +51,12 @@ void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   uint32_t addr;
   addr = to_send->RIR >> 21;
+  uint32_t ts = TIM2->CNT;
 
   // LKA STEER: safety check
   if (addr == 356) {
     int desired_torque = ((to_send->RDLR >> 8) & 0x1fff);
+    int violation = 0;
     if (controls_allowed) {
 
       // *** global torque limit check ***
@@ -81,6 +83,7 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   }
   if (addr == 290) {
     int desired_torque = ((to_send->RDLR >> 16) & 0x1fff);
+    int violation = 0;
     if (controls_allowed) {
 
       // *** global torque limit check ***
@@ -105,9 +108,6 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
       }
     }
   }
-
-    uint32_t ts = TIM2->CNT;
-    int violation = 0;
 
     if (controls_allowed) {
 
