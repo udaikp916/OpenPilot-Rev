@@ -13,13 +13,13 @@ uint32_t subaru_ts_last = 0;
 struct sample_t subaru_torque_driver;         // last few driver torques measured
 
 void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
-  int bus = (to_push->RDTR >> 4) & 0xFF;
+  // int bus = (to_push->RDTR >> 4) & 0xFF;
   uint32_t addr;
   addr = to_push->RIR >> 21;
 
   // sets driver torque
   if (addr == 881) {
-    int torque_driver_new = ((to_push->RDLR >> 32) & 0xff);
+    int torque_driver_new = ((to_push->RDLR >> 39) & 0xff);
     update_sample(&subaru_torque_driver, torque_driver_new);
   }
   if (addr == 281) {
@@ -53,13 +53,58 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   addr = to_send->RIR >> 21;
 
   // LKA STEER: safety check
-  if (addr == 356 || 290) {
-    if (addr == 356) {
-      int desired_torque = ((to_send->RDLR >> 8) & 0x1fff);
+  if (addr == 356) {
+    int desired_torque = ((to_send->RDLR >> 8) & 0x1fff);
+    if (controls_allowed) {
+
+      // *** global torque limit check ***
+      violation |= max_limit_check(desired_torque, SUBARU_MAX_STEER, -SUBARU_MAX_STEER);
+
+      // *** torque rate limit check ***
+      violation |= driver_limit_check(desired_torque, subaru_desired_torque_last, &subaru_torque_driver,
+        SUBARU_MAX_STEER, SUBARU_MAX_RATE_UP, SUBARU_MAX_RATE_DOWN,
+        SUBARU_DRIVER_TORQUE_ALLOWANCE, SUBARU_DRIVER_TORQUE_FACTOR);
+
+      // used next time
+      subaru_desired_torque_last = desired_torque;
+
+      // *** torque real time rate limit check ***
+      violation |= rt_rate_limit_check(desired_torque, subaru_rt_torque_last, SUBARU_MAX_RT_DELTA);
+
+      // every RT_INTERVAL set the new limits
+      uint32_t ts_elapsed = get_ts_elapsed(ts, subaru_ts_last);
+      if (ts_elapsed > SUBARU_RT_INTERVAL) {
+        subaru_rt_torque_last = desired_torque;
+        subaru_ts_last = ts;
+      }
     }
-    if (addr == 290) {
-      int desired_torque = ((to_send->RDLR >> 16) & 0x1fff);
-    }
+  }
+  if (addr == 290) {
+    int desired_torque = ((to_send->RDLR >> 16) & 0x1fff);
+    if (controls_allowed) {
+
+      // *** global torque limit check ***
+      violation |= max_limit_check(desired_torque, SUBARU_MAX_STEER, -SUBARU_MAX_STEER);
+
+      // *** torque rate limit check ***
+      violation |= driver_limit_check(desired_torque, subaru_desired_torque_last, &subaru_torque_driver,
+        SUBARU_MAX_STEER, SUBARU_MAX_RATE_UP, SUBARU_MAX_RATE_DOWN,
+        SUBARU_DRIVER_TORQUE_ALLOWANCE, SUBARU_DRIVER_TORQUE_FACTOR);
+
+      // used next time
+      subaru_desired_torque_last = desired_torque;
+
+      // *** torque real time rate limit check ***
+      violation |= rt_rate_limit_check(desired_torque, subaru_rt_torque_last, SUBARU_MAX_RT_DELTA);
+
+      // every RT_INTERVAL set the new limits
+      uint32_t ts_elapsed = get_ts_elapsed(ts, subaru_ts_last);
+      if (ts_elapsed > SUBARU_RT_INTERVAL) {
+        subaru_rt_torque_last = desired_torque;
+        subaru_ts_last = ts;
+      }
+    }  
+  }
 
     uint32_t ts = TIM2->CNT;
     int violation = 0;
