@@ -15,11 +15,11 @@ class CarControllerParams():
     self.STEER_DELTA_UP = 60              # torque increase per refresh
     self.STEER_DELTA_DOWN = 60            # torque decrease per refresh
     if car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
-      self.STEER_DRIVER_ALLOWANCE = 20    # allowed driver torque before start limiting FIXME: NOT YET SCALED
+      self.STEER_DRIVER_ALLOWANCE = 400   # allowed driver torque before start limiting FIXME: NOT YET SCALED
     else:
-      self.STEER_DRIVER_ALLOWANCE = 250   # allowed driver torque before start limiting
-    self.STEER_DRIVER_MULTIPLIER = 1      # weight driver torque heavily
-    self.STEER_DRIVER_FACTOR = 1          # from dbc
+      self.STEER_DRIVER_ALLOWANCE = 2500   # allowed driver torque before start limiting
+    self.STEER_DRIVER_MULTIPLIER = 5      # weight driver torque heavily
+    self.STEER_DRIVER_FACTOR = 80         # scale driver torque to lka torque
 
 
 
