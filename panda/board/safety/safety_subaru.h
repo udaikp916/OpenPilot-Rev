@@ -103,7 +103,7 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
         subaru_rt_torque_last = desired_torque;
         subaru_ts_last = ts;
       }
-    }  
+    }
   }
 
     uint32_t ts = TIM2->CNT;
@@ -148,7 +148,6 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
     if (violation) {
       return false;
     }
-  }
 
   // True allows the message through
   return true;
