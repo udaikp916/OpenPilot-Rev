@@ -65,7 +65,7 @@ class CarInterface(object):
     ret.centerToFront = ret.wheelbase * 0.5
 
     ret.steerRatio = 14
-    ret.steerActuatorDelay = 0.2
+    ret.steerActuatorDelay = 0.3
     ret.steerRateCost = 1
     ret.steerKf = 0.00005
     ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
@@ -74,17 +74,17 @@ class CarInterface(object):
     ret.steerMaxV = [1.]
     if candidate == CAR.OUTBACK:
       ret.steerRatio = 14
-      ret.steerKf = 0.00005
+      ret.steerKf = 0.000055
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
-      ret.steerKpV, ret.steerKiV = [[0.02], [0.003]]
+      ret.steerKpV, ret.steerKiV = [[0.2], [0.1]]
 
     elif candidate == CAR.LEGACY:
       ret.steerRatio = 14.5
       ret.steerKf = 0.00005
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
-      ret.steerKpV, ret.steerKiV = [[0.02], [0.003]]
+      ret.steerKpV, ret.steerKiV = [[0.2], [0.1]]
 
-    elif candidate in [CAR.XV2018]:
+    elif candidate in [CAR.XV]:
       ret.steerRatio = 14.5
       ret.steerKf = 0.00002
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s

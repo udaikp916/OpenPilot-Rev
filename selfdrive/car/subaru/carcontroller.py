@@ -15,7 +15,7 @@ class CarControllerParams():
     self.STEER_DELTA_UP = 60              # torque increase per refresh
     self.STEER_DELTA_DOWN = 60            # torque decrease per refresh
     if car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
-      self.STEER_DRIVER_ALLOWANCE = 20    # allowed driver torque before start limiting
+      self.STEER_DRIVER_ALLOWANCE = 20    # allowed driver torque before start limiting FIXME: NOT YET SCALED
     else:
       self.STEER_DRIVER_ALLOWANCE = 250   # allowed driver torque before start limiting
     self.STEER_DRIVER_MULTIPLIER = 1      # weight driver torque heavily
@@ -90,29 +90,26 @@ class CarController(object):
         steer1 =  chksm_steer - (steer2 << 8)
         checksum = (idx + steer2 + steer1 + chksm_engage) % 256
 
+      if (self.car_fingerprint == CAR.XV):
+
+        #counts from 0 to 15 then back to 0 + 16 for enable bit
+        if apply_steer != 0:
+          chksm_steer = apply_steer * -1
+          chksm_engage = 32
+        else:
+          chksm_engage = 0
+
+        idx = ((frame / P.STEER_STEP) % 16)
+        steer2 = (chksm_steer >> 8) & 0x1F
+        steer1 =  chksm_steer - (steer2 << 8)
+        byte2 = steer2 + chksm_engage
+
+        checksum = ((idx + 16 + steer1 + byte2 + 35) % 256)
+
         can_sends.append(subarucan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, idx, apply_steer, checksum))
 
-    if not enabled and CS.acc_active == 1:
+    if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY) and not enabled and CS.acc_active == 1:
       can_sends.append(subarucan.create_seatbelt_control(self.packer_pt, canbus.eyesight, CS.CP.carFingerprint))
 
 
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
-
-'''
-      if (self.car_fingerprint == CAR.XV2018):
-
-        #counts from 0 to 15 then back to 0 + 16 for enable bit
-
-        chksm_steer = apply_steer * -1
-        if chksm_steer != 0:
-          left3 = 32
-        else:
-          left3 = 0
-
-        idx = ((frame / P.STEER_STEP) % 16) + 16
-        steer2 = (chksm_steer >> 8) & 0x1F
-        steer1 =  chksm_steer - (steer2 << 8)
-        byte2 = steer2 + left3
-
-        checksum = ((idx + steer1 + byte2) % 256) + 35
-'''
