@@ -12,11 +12,13 @@ def get_powertrain_can_parser(CP, canbus):
     ("LEFT_BLINKER", "Dashlights", 0),
     ("RIGHT_BLINKER", "Dashlights", 0),
     ("Steering_Angle", "Steering_Torque", 0),
+    ("Steer_Torque_Sensor", "Steering_Torque", 0),
+    ("Brake_Pedal", "Brake_Pedal", 0),
+    ("Throttle_Pedal", "Throttle", 0),
     ("FL", "WHEEL_SPEEDS", 0),
     ("FR", "WHEEL_SPEEDS", 0),
     ("RL", "WHEEL_SPEEDS", 0),
     ("RR", "WHEEL_SPEEDS", 0),
-    ("Steer_Torque_Sensor", "Steering_Torque", 0),
     ("DOOR_OPEN_FR", "DOORS_STATUS", 0),
     ("DOOR_OPEN_FL", "DOORS_STATUS", 0),
     ("DOOR_OPEN_RR", "DOORS_STATUS", 0),
@@ -27,15 +29,16 @@ def get_powertrain_can_parser(CP, canbus):
   checks = [
     # sig_address, frequency
     ("Dashlights", 10),
-    ("WHEEL_SPEEDS", 50),
     ("Steering_Torque", 50),
+    ("Brake_Pedal", 50),
+    ("Throttle", 50),
+    ("WHEEL_SPEEDS", 50),
+    ("DOORS_STATUS", 10),
   ]
 
   if CP.carFingerprint in (CAR.OUTBACK, CAR.LEGACY):
     signals += [
       ("Gear", "Transmission", 0),
-      ("Brake_Pedal", "Brake_Pedal", 0),
-      ("Throttle_Pedal", "Throttle", 0),
     ]
 
 
@@ -60,6 +63,7 @@ def get_eyesight_can_parser(CP, canbus):
     signals += [
     ("Saved_Speed", "ES_DashStatus", 0),
     ]
+
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, canbus.eyesight)
 
 class CarState(object):
@@ -109,15 +113,13 @@ class CarState(object):
     self.prev_right_blinker_on = self.right_blinker_on
 
     self.steer_torque_driver = pt_cp.vl["Steering_Torque"]['Steer_Torque_Sensor']
-    self.acc_active = es_cp.vl["ES_Status"]['Cruise_Activated']
-    self.main_on = es_cp.vl["ES_Status"]['Cruise_On'] or es_cp.vl["ES_Status"]['Cruise_Activated']
+    self.angle_steers = pt_cp.vl["Steering_Torque"]['Steering_Angle']
+    self.pedal_gas = pt_cp.vl["Throttle"]['Throttle_Pedal']
+    self.brake_pressure = pt_cp.vl["Brake_Pedal"]['Brake_Pedal']
 
     if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
       self.cruise_set_speed = es_cp.vl["ES_Status"]['Saved_Speed']
       self.steer_override = abs(self.steer_torque_driver) > 8
-      self.angle_steers = pt_cp.vl["Steering_Torque"]['Steering_Angle']
-      self.brake_pressure = pt_cp.vl["Brake_Pedal"]['Brake_Pedal']
-      self.pedal_gas = pt_cp.vl["Throttle"]['Throttle_Pedal']
       gear = pt_cp.vl["Transmission"]["Gear"]
       if gear == 0:
         self.gear_shifter = "neutral"
@@ -127,14 +129,16 @@ class CarState(object):
         self.gear_shifter = "reverse"
       else:
         self.gear_shifter = "drive"
+      self.main_on = es_cp.vl["ES_Status"]['Cruise_On']
 
     if self.car_fingerprint == CAR.XV:
       self.cruise_set_speed = es_cp.vl["ES_DashStatus"]['Saved_Speed']
       self.steer_override = abs(self.steer_torque_driver) > 20.0
-      self.angle_steers = pt_cp.vl["Steering_Torque"]['Steering_Angle']
-      self.brake_pressure = 0
-      self.pedal_gas = 0
       self.gear_shifter = "drive"
+      self.main_on = es_cp.vl["ES_Status"]['Cruise_Activated']
+
+    self.acc_active = es_cp.vl["ES_Status"]['Cruise_Activated']
+
 
     # calculate steer angle change/s
     self.angle_steers_rate = (self.angle_steers - self.angle_steers_prev) * 50
