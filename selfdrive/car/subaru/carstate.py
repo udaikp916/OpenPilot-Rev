@@ -115,7 +115,10 @@ class CarState(object):
     self.steer_torque_driver = pt_cp.vl["Steering_Torque"]['Steer_Torque_Sensor']
     self.angle_steers = pt_cp.vl["Steering_Torque"]['Steering_Angle']
     self.pedal_gas = pt_cp.vl["Throttle"]['Throttle_Pedal']
+    self.user_gas_pressed = self.pedal_gas > 0
     self.brake_pressure = pt_cp.vl["Brake_Pedal"]['Brake_Pedal']
+    self.brake_pressed = self.brake_pressure > 0
+    self.brake_lights = bool(self.brake_pressed)
 
     if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
       self.cruise_set_speed = es_cp.vl["ES_Status"]['Saved_Speed']
@@ -139,14 +142,10 @@ class CarState(object):
 
     self.acc_active = es_cp.vl["ES_Status"]['Cruise_Activated']
 
-
     # calculate steer angle change/s
     self.angle_steers_rate = (self.angle_steers - self.angle_steers_prev) * 50
     self.angle_steers_prev = self.angle_steers
 
-    self.user_gas_pressed = self.pedal_gas > 0
-    self.brake_pressed = self.brake_pressure > 0
-    self.brake_lights = bool(self.brake_pressed)
     self.door_open = any([pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_RR'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_RL'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_FR'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_FL'], pt_cp.vl["DOORS_STATUS"]['DOOR_OPEN_Hatch']])
 
 
