@@ -106,7 +106,7 @@ class CarController(object):
 
         checksum = ((idx + 16 + steer1 + byte2 + 35) % 256)
 
-        can_sends.append(subarucan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, idx, apply_steer, checksum))
+      can_sends.append(subarucan.create_steering_control(self.packer_pt, canbus.powertrain, CS.CP.carFingerprint, idx, apply_steer, checksum))
 
     if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY) and not enabled and CS.acc_active == 1:
       can_sends.append(subarucan.create_door_control(self.packer_pt, canbus.eyesight, CS.CP.carFingerprint))
