@@ -32,9 +32,9 @@ static int subaru_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   else if (bus_num == 1) {
 
     // subaru global
-    //if (addr == 0x122) {
-    //  return -1;
-    //}
+    if (addr == 0x122) {
+      return -1;
+    }
     // outback 2015
     if (addr == 0x164) {
       return -1;
