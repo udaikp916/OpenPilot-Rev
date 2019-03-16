@@ -81,13 +81,10 @@ static int ford_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   }
 */
   // 1 allows the message through
-  return true;
+  return 1;
 }
 
 static int ford_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
-  
-  // shifts bits 29 > 11
-  int32_t addr = to_fwd->RIR >> 21;
 
   // forward CAN 0 > 1
   if (bus_num == 0) {
@@ -100,8 +97,8 @@ static int ford_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 }
 const safety_hooks ford_hooks = {
   .init = alloutput_init,
-  .rx = ford_rx_hook,
-  .tx = alloutput_tx_hook,
+  .rx = default_rx_hook,
+  .tx = ford_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,
   .ignition = default_ign_hook,
   .fwd = ford_fwd_hook,
