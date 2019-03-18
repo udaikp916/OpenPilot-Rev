@@ -77,12 +77,13 @@ class CarState(object):
     self.standstill = not self.v_wheel > 0.01
 
     self.angle_steers = cp.vl["Steering_Wheel_Data_CG1"]['SteWhlRelInit_An_Sns']
-    self.v_cruise_pcm = cp.vl["EngBrakeData"]['Veh_V_DsplyCcSet'] * CV.MPH_TO_MS
-    self.pcm_acc_status = cp.vl["EngBrakeData"]['CcStat_D_Actl']
-    self.main_on = cp.vl["EngBrakeData"]['CcStat_D_Actl'] != 0
-    self.lkas_state = cp.vl["Lane_Assist_Data3"]['LaActAvail_D_Actl']
     self.steer_override = not cp.vl["Lane_Assist_Data3"]['LaHandsOff_B_Actl']
-    self.steer_error = cp.vl["Lane_Assist_Data3"]['LaActDeny_B_Actl']
     self.user_gas = cp.vl["EngineData_14"]['ApedPosScal_Pc_Actl']
     self.brake_pressed = bool(cp.vl["EngBrakeData"]["BpedDrvAppl_D_Actl"])
     self.brake_lights = bool(cp.vl["BCM_to_HS_Body"]["Brake_Lamp_On_Status"])
+    self.pcm_acc_status = cp.vl["EngBrakeData"]['CcStat_D_Actl']
+    self.v_cruise_pcm = cp.vl["EngBrakeData"]['Veh_V_DsplyCcSet'] * CV.MPH_TO_MS
+
+    self.main_on = cp.vl["EngBrakeData"]['CcStat_D_Actl'] != 0
+    self.lkas_state = cp.vl["Lane_Assist_Data3"]['LaActAvail_D_Actl']
+    self.steer_error = cp.vl["Lane_Assist_Data3"]['LaActDeny_B_Actl']
