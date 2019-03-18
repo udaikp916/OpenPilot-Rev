@@ -86,13 +86,7 @@ static int ford_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
 static int ford_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
-  // forward CAN 0 > 1
-  if (bus_num == 0) {
-    return 1; // CAM CAN
-  }
- 
-
-  // fall back to do not forward
+// fall back to do not forward
   return -1;
 }
 const safety_hooks ford_hooks = {
