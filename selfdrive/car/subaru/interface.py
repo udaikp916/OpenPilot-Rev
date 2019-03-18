@@ -55,7 +55,7 @@ class CarInterface(object):
     ret.carName = "subaru"
     ret.carFingerprint = candidate
 
-    ret.enableCruise = False
+    ret.enableCruise = True
 
     # TODO: gate this on detection
     ret.enableCamera = True
@@ -69,20 +69,20 @@ class CarInterface(object):
     ret.steerRateCost = 1
     ret.steerKf = 0.00005
     ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
-    ret.steerKpV, ret.steerKiV = [[0.02], [0.003]]
+    ret.steerKpV, ret.steerKiV = [[0.3], [0.03]]
     ret.steerMaxBP = [0.] # m/s
     ret.steerMaxV = [1.]
     if candidate == CAR.OUTBACK:
       ret.steerRatio = 14
-      ret.steerKf = 0.000055
+      ret.steerKf = 0.0006
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
-      ret.steerKpV, ret.steerKiV = [[0.2], [0.1]]
+      ret.steerKpV, ret.steerKiV = [[0.6], [0.15]]
 
     elif candidate == CAR.LEGACY:
       ret.steerRatio = 14.5
-      ret.steerKf = 0.00005
+      ret.steerKf = 0.0006
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
-      ret.steerKpV, ret.steerKiV = [[0.2], [0.1]]
+      ret.steerKpV, ret.steerKiV = [[0.6], [0.15]]
 
     elif candidate in [CAR.XV]:
       ret.steerRatio = 14.5
@@ -173,6 +173,7 @@ class CarInterface(object):
 
     # cruise state
     ret.cruiseState.available = bool(self.CS.main_on)
+    ret.cruiseState.enabled = bool(self.CS.acc_active)
     ret.leftBlinker = self.CS.left_blinker_on
     ret.rightBlinker = self.CS.right_blinker_on
     ret.gearShifter = self.CS.gear_shifter
@@ -186,7 +187,7 @@ class CarInterface(object):
     ret.steeringPressed = self.CS.steer_override
 
     ret.cruiseState.speed = self.CS.cruise_set_speed
-    ret.cruiseState.standstill = False
+    ret.cruiseState.standstill = False if self.CS.v_ego > 0.1 else True
     ret.doorOpen = self.CS.door_open
 
     buttonEvents = []
