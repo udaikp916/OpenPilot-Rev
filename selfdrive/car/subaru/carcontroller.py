@@ -2,6 +2,7 @@ from common.numpy_fast import clip, interp
 from common.realtime import sec_since_boot
 from selfdrive.config import Conversions as CV
 from selfdrive.boardd.boardd import can_list_to_can_capnp
+from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.subaru.carstate import CarState, get_powertrain_can_parser, get_eyesight_can_parser
 from selfdrive.car.subaru import subarucan
 from selfdrive.car.subaru.values import CAR, DBC
