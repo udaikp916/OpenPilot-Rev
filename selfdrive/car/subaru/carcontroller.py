@@ -35,7 +35,7 @@ class CarController(object):
     # Setup detection helper. Routes commands to
     # an appropriate CAN bus number.
     self.canbus = canbus
-    self.params = SteerLimitParams(car_fingerprint)
+    self.params = CarControllerParams(car_fingerprint)
     print(DBC)
     self.packer_pt = CANPacker(DBC[car_fingerprint]['pt'])
 
