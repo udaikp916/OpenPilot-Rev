@@ -76,7 +76,7 @@ class CarInterface(object):
       ret.steerRatio = 14
       ret.steerKf = 0.0006
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
-      ret.steerKpV, ret.steerKiV = [[0.6], [0.15]]
+      ret.steerKpV, ret.steerKiV = [[0.1], [0.0]]
 
     elif candidate == CAR.LEGACY:
       ret.steerRatio = 14.5
