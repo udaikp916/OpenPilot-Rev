@@ -335,6 +335,11 @@ void can_send(void *s) {
 
   capnp::FlatArrayMessageReader cmsg(amsg);
   cereal::Event::Reader event = cmsg.getRoot<cereal::Event>();
+  if (nanos_since_boot() - event.getLogMonoTime() > 1e9) {
+    //Older than 1 second. Dont send.
+    zmq_msg_close(&msg);
+    return;
+  }
   int msg_count = event.getCan().size();
 
   uint32_t *send = (uint32_t*)malloc(msg_count*0x10);
