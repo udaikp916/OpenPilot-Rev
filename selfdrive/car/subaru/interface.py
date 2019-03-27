@@ -4,13 +4,8 @@ from common.realtime import sec_since_boot
 from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import create_event, EventTypes as ET
 from selfdrive.controls.lib.vehicle_model import VehicleModel
-<<<<<<< HEAD
 from selfdrive.car.subaru.values import DBC, CAR
 from selfdrive.car.subaru.carstate import CarState, get_powertrain_can_parser, get_eyesight_can_parser
-=======
-from selfdrive.car.subaru.values import CAR
-from selfdrive.car.subaru.carstate import CarState, get_powertrain_can_parser
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
 
 try:
   from selfdrive.car.subaru.carcontroller import CarController
@@ -18,14 +13,11 @@ except ImportError:
   CarController = None
 
 
-<<<<<<< HEAD
 class CanBus(object):
   def __init__(self):
     self.powertrain = 0
     self.eyesight = 1
 
-=======
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
 class CarInterface(object):
   def __init__(self, CP, sendcan=None):
     self.CP = CP
@@ -33,7 +25,6 @@ class CarInterface(object):
     self.frame = 0
     self.can_invalid_count = 0
     self.acc_active_prev = 0
-<<<<<<< HEAD
     self.gas_pressed_prev = 0
     self.brake_pressed_prev = 0
 
@@ -43,22 +34,11 @@ class CarInterface(object):
     self.VM = VehicleModel(CP)
     self.pt_cp = get_powertrain_can_parser(CP, canbus)
     self.es_cp = get_eyesight_can_parser(CP, canbus)
-=======
-
-    # *** init the major players ***
-    self.CS = CarState(CP)
-    self.VM = VehicleModel(CP)
-    self.pt_cp = get_powertrain_can_parser(CP)
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
 
     # sending if read only is False
     if sendcan is not None:
       self.sendcan = sendcan
-<<<<<<< HEAD
       self.CC = CarController(canbus, CP.carFingerprint)
-=======
-      self.CC = CarController(CP.carFingerprint)
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
 
   @staticmethod
   def compute_gb(accel, speed):
@@ -74,7 +54,6 @@ class CarInterface(object):
 
     ret.carName = "subaru"
     ret.carFingerprint = candidate
-<<<<<<< HEAD
 
     ret.enableCruise = True
 
@@ -105,7 +84,7 @@ class CarInterface(object):
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
       ret.steerKpV, ret.steerKiV = [[0.6], [0.15]]
 
-    elif candidate in [CAR.XV]:
+    elif candidate in [CAR.XV, CAR.IMPREZA]:
       ret.steerRatio = 14.5
       ret.steerKf = 0.00005
       ret.steerKiBP, ret.steerKpBP = [[0.], [0.]] # m/s
@@ -135,47 +114,6 @@ class CarInterface(object):
 
     ret.stoppingControl = True
     ret.startAccel = 0.8
-=======
-    ret.safetyModel = car.CarParams.SafetyModels.subaru
-
-    ret.enableCruise = False
-    ret.steerLimitAlert = True
-    ret.enableCamera = True
-
-    std_cargo = 136
-    ret.steerRateCost = 0.7
-
-    if candidate in [CAR.IMPREZA]:
-      ret.mass = 1568 + std_cargo
-      ret.wheelbase = 2.67
-      ret.centerToFront = ret.wheelbase * 0.5
-      ret.steerRatio = 15
-      tire_stiffness_factor = 1.0
-      ret.steerActuatorDelay = 0.4   # end-to-end angle controller
-      ret.steerKf = 0.00005
-      ret.steerKiBP, ret.steerKpBP = [[0., 20.], [0., 20.]]
-      ret.steerKpV, ret.steerKiV = [[0.2, 0.3], [0.02, 0.03]]
-      ret.steerMaxBP = [0.] # m/s
-      ret.steerMaxV = [1.]
-
-    ret.steerControlType = car.CarParams.SteerControlType.torque
-    ret.steerRatioRear = 0.
-    # testing tuning
-
-    # No long control in subaru
-    ret.gasMaxBP = [0.]
-    ret.gasMaxV = [0.]
-    ret.brakeMaxBP = [0.]
-    ret.brakeMaxV = [0.]
-    ret.longPidDeadzoneBP = [0.]
-    ret.longPidDeadzoneV = [0.]
-    ret.longitudinalKpBP = [0.]
-    ret.longitudinalKpV = [0.]
-    ret.longitudinalKiBP = [0.]
-    ret.longitudinalKiV = [0.]
-
-    # end from gm
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
 
     # hardcoding honda civic 2016 touring params so they can be used to
     # scale unknown params for other cars
@@ -187,10 +125,6 @@ class CarInterface(object):
     tireStiffnessFront_civic = 192150
     tireStiffnessRear_civic = 202500
     centerToRear = ret.wheelbase - ret.centerToFront
-<<<<<<< HEAD
-=======
-
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
     # TODO: get actual value, for now starting with reasonable value for
     # civic and scaling by mass and wheelbase
     ret.rotationalInertia = rotationalInertia_civic * \
@@ -198,17 +132,10 @@ class CarInterface(object):
 
     # TODO: start from empirically derived lateral slip stiffness for the civic and scale by
     # mass and CG position, so all cars will have approximately similar dyn behaviors
-<<<<<<< HEAD
     ret.tireStiffnessFront = tireStiffnessFront_civic * \
                              ret.mass / mass_civic * tire_stiffness_factor * \
                              (centerToRear / ret.wheelbase) / (centerToRear_civic / wheelbase_civic)
     ret.tireStiffnessRear = tireStiffnessRear_civic * tire_stiffness_factor * \
-=======
-    ret.tireStiffnessFront = (tireStiffnessFront_civic * tire_stiffness_factor) * \
-                             ret.mass / mass_civic * \
-                             (centerToRear / ret.wheelbase) / (centerToRear_civic / wheelbase_civic)
-    ret.tireStiffnessRear = (tireStiffnessRear_civic * tire_stiffness_factor) * \
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
                             ret.mass / mass_civic * \
                             (ret.centerToFront / ret.wheelbase) / (centerToFront_civic / wheelbase_civic)
 
@@ -218,12 +145,8 @@ class CarInterface(object):
   def update(self, c):
 
     self.pt_cp.update(int(sec_since_boot() * 1e9), False)
-<<<<<<< HEAD
     self.es_cp.update(int(sec_since_boot() * 1e9), False)
     self.CS.update(self.pt_cp, self.es_cp)
-=======
-    self.CS.update(self.pt_cp)
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
 
     # create message
     ret = car.CarState.new_message()
@@ -241,10 +164,7 @@ class CarInterface(object):
 
     # steering wheel
     ret.steeringAngle = self.CS.angle_steers
-<<<<<<< HEAD
     ret.steeringRate = self.CS.angle_steers_rate
-=======
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
 
     # torque and user override. Driver awareness
     # timer resets when the user uses the steering wheel.
@@ -253,7 +173,6 @@ class CarInterface(object):
 
     # cruise state
     ret.cruiseState.available = bool(self.CS.main_on)
-<<<<<<< HEAD
     ret.cruiseState.enabled = bool(self.CS.acc_active)
     ret.leftBlinker = self.CS.left_blinker_on
     ret.rightBlinker = self.CS.right_blinker_on
@@ -270,11 +189,6 @@ class CarInterface(object):
     ret.cruiseState.speed = self.CS.cruise_set_speed
     ret.cruiseState.standstill = False if self.CS.v_ego > 0.1 else True
     ret.doorOpen = self.CS.door_open
-=======
-    ret.leftBlinker = self.CS.left_blinker_on
-    ret.rightBlinker = self.CS.right_blinker_on
-    ret.seatbeltUnlatched = self.CS.seatbelt_unlatched
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
 
     buttonEvents = []
 
@@ -291,15 +205,9 @@ class CarInterface(object):
       be.pressed = self.CS.right_blinker_on
       buttonEvents.append(be)
 
-<<<<<<< HEAD
     ret.buttonEvents = buttonEvents
     ret.leftBlinker = bool(self.CS.left_blinker_on)
     ret.rightBlinker = bool(self.CS.right_blinker_on)
-=======
-    be = car.CarState.ButtonEvent.new_message()
-    be.type = 'accelCruise'
-    buttonEvents.append(be)
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
 
 
     events = []
@@ -310,17 +218,10 @@ class CarInterface(object):
     else:
       self.can_invalid_count = 0
 
-<<<<<<< HEAD
-=======
-    if ret.seatbeltUnlatched:
-      events.append(create_event('seatbeltNotLatched', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
-
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
     if self.CS.acc_active and not self.acc_active_prev:
       events.append(create_event('pcmEnable', [ET.ENABLE]))
     if not self.CS.acc_active:
       events.append(create_event('pcmDisable', [ET.USER_DISABLE]))
-<<<<<<< HEAD
     if (ret.gasPressed and not self.gas_pressed_prev) or \
       (ret.brakePressed and (not self.brake_pressed_prev or ret.vEgoRaw > 0.1)):
       events.append(create_event('pedalPressed', [ET.NO_ENTRY, ET.USER_DISABLE]))
@@ -328,28 +229,13 @@ class CarInterface(object):
       events.append(create_event('reverseGear', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE]))
 
 
-=======
-
-    ## handle button presses
-    #for b in ret.buttonEvents:
-    #  # do enable on both accel and decel buttons
-    #  if b.type in ["accelCruise", "decelCruise"] and not b.pressed:
-    #    events.append(create_event('buttonEnable', [ET.ENABLE]))
-    #  # do disable on button down
-    #  if b.type == "cancel" and b.pressed:
-    #    events.append(create_event('buttonCancel', [ET.USER_DISABLE]))
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
 
     ret.events = events
 
     # update previous brake/gas pressed
     self.acc_active_prev = self.CS.acc_active
-<<<<<<< HEAD
     self.gas_pressed_prev = ret.gasPressed
     self.brake_pressed_prev = ret.brakePressed
-=======
-
->>>>>>> parent of b264e8b... Revert "Merge branch 'devel' of https://github.com/commaai/openpilot into devel"
 
     # cast to reader so it can't be modified
     return ret.as_reader()
