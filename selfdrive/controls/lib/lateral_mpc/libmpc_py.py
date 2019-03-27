@@ -18,7 +18,6 @@ typedef struct {
     double y[21];
     double psi[21];
     double delta[21];
-    double rate[21];
     double cost;
 } log_t;
 
