@@ -4,14 +4,14 @@ def create_steering_control(packer, bus, car_fingerprint, idx, steer, checksum):
   if car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
     values = {
       "Counter": idx,
-      "LKAS_Output": steer,
+      "LKAS_Command": steer,
       "LKAS_Active": 1 if steer != 0 else 0,
       "Checksum": checksum
     }
   if car_fingerprint in (CAR.XV):
     values = {
       "Counter": idx,
-      "LKAS_Output": steer,
+      "LKAS_Command": steer,
       "LKAS_Active": 1 if steer != 0 else 0,
       "Checksum": checksum,
       "SET_1": 1
