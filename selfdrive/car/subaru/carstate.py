@@ -3,7 +3,7 @@ import numpy as np
 from common.kalman.simple_kalman import KF1D
 from selfdrive.config import Conversions as CV
 from selfdrive.can.parser import CANParser
-from selfdrive.car.subaru.values import DBC, STEER_THRESHOLD
+from selfdrive.car.subaru.values import CAR, DBC, STEER_THRESHOLD
 
 def get_powertrain_can_parser(CP):
   # this function generates lists for signal, messages and initial values
@@ -11,13 +11,13 @@ def get_powertrain_can_parser(CP):
     # sig_name, sig_address, default
     ("Steer_Torque_Sensor", "Steering_Torque", 0),
     ("Steering_Angle", "Steering_Torque", 0),
+    ("Steer_Torque_Output", "Steering_Torque", 0),
     ("Cruise_On", "CruiseControl", 0),
     ("Cruise_Activated", "CruiseControl", 0),
     ("Brake_Pedal", "Brake_Pedal", 0),
     ("Throttle_Pedal", "Throttle", 0),
     ("LEFT_BLINKER", "Dashlights", 0),
     ("RIGHT_BLINKER", "Dashlights", 0),
-    ("SEATBELT_FL", "Dashlights", 0),
     ("FL", "Wheel_Speeds", 0),
     ("FR", "Wheel_Speeds", 0),
     ("RL", "Wheel_Speeds", 0),
@@ -31,50 +31,68 @@ def get_powertrain_can_parser(CP):
   checks = [
     # sig_address, frequency
     ("Dashlights", 10),
-    ("CruiseControl", 20),
     ("Wheel_Speeds", 50),
     ("Steering_Torque", 50),
-    ("BodyInfo", 10),
   ]
+
+  if CP.carFingerprint not in (CAR.OUTBACK, CAR.LEGACY):
+    signals += [
+      ("SEATBELT_FL", "Dashlights", 0),
+    ]
+    checks += [
+      ("BodyInfo", 10),
+      ("CruiseControl", 20),
+    ]
+
+  else:
+    signals += [
+      ("LKA_Lockout", "Steering_Torque", 0),
+    ]
+    checks += [
+      ("CruiseControl", 50),
+    ]
+
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 0)
 
 def get_camera_can_parser(CP):
   signals = [
     ("Cruise_Set_Speed", "ES_DashStatus", 0),
-
-    ("Counter", "ES_Distance", 0),
-    ("Signal1", "ES_Distance", 0),
-    ("Signal2", "ES_Distance", 0),
-    ("Main", "ES_Distance", 0),
-    ("Signal3", "ES_Distance", 0),
-
-    ("Checksum", "ES_LKAS_State", 0),
-    ("Counter", "ES_LKAS_State", 0),
-    ("Keep_Hands_On_Wheel", "ES_LKAS_State", 0),
-    ("Empty_Box", "ES_LKAS_State", 0),
-    ("Signal1", "ES_LKAS_State", 0),
-    ("LKAS_ACTIVE", "ES_LKAS_State", 0),
-    ("Signal2", "ES_LKAS_State", 0),
-    ("Backward_Speed_Limit_Menu", "ES_LKAS_State", 0),
-    ("LKAS_ENABLE_3", "ES_LKAS_State", 0),
-    ("Signal3", "ES_LKAS_State", 0),
-    ("LKAS_ENABLE_2", "ES_LKAS_State", 0),
-    ("Signal4", "ES_LKAS_State", 0),
-    ("FCW_Cont_Beep", "ES_LKAS_State", 0),
-    ("FCW_Repeated_Beep", "ES_LKAS_State", 0),
-    ("Throttle_Management_Activated", "ES_LKAS_State", 0),
-    ("Traffic_light_Ahead", "ES_LKAS_State", 0),
-    ("Right_Depart", "ES_LKAS_State", 0),
-    ("Signal5", "ES_LKAS_State", 0),
-
   ]
 
   checks = [
     ("ES_DashStatus", 10),
   ]
 
-  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2)
+  if CP.carFingerprint not in (CAR.OUTBACK, CAR.LEGACY):
+    signals += [
+      ("Counter", "ES_Distance", 0),
+      ("Signal1", "ES_Distance", 0),
+      ("Signal2", "ES_Distance", 0),
+      ("Main", "ES_Distance", 0),
+      ("Signal3", "ES_Distance", 0),
+
+      ("Checksum", "ES_LKAS_State", 0),
+      ("Counter", "ES_LKAS_State", 0),
+      ("Keep_Hands_On_Wheel", "ES_LKAS_State", 0),
+      ("Empty_Box", "ES_LKAS_State", 0),
+      ("Signal1", "ES_LKAS_State", 0),
+      ("LKAS_ACTIVE", "ES_LKAS_State", 0),
+      ("Signal2", "ES_LKAS_State", 0),
+      ("Backward_Speed_Limit_Menu", "ES_LKAS_State", 0),
+      ("LKAS_ENABLE_3", "ES_LKAS_State", 0),
+      ("Signal3", "ES_LKAS_State", 0),
+      ("LKAS_ENABLE_2", "ES_LKAS_State", 0),
+      ("Signal4", "ES_LKAS_State", 0),
+      ("FCW_Cont_Beep", "ES_LKAS_State", 0),
+      ("FCW_Repeated_Beep", "ES_LKAS_State", 0),
+      ("Throttle_Management_Activated", "ES_LKAS_State", 0),
+      ("Traffic_light_Ahead", "ES_LKAS_State", 0),
+      ("Right_Depart", "ES_LKAS_State", 0),
+      ("Signal5", "ES_LKAS_State", 0),
+    ]
+
+  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
 
 class CarState(object):
   def __init__(self, CP):
@@ -114,8 +132,6 @@ class CarState(object):
     self.v_wheel_rl = cp.vl["Wheel_Speeds"]['RL'] * CV.KPH_TO_MS
     self.v_wheel_rr = cp.vl["Wheel_Speeds"]['RR'] * CV.KPH_TO_MS
 
-    self.v_cruise_pcm = cp_cam.vl["ES_DashStatus"]["Cruise_Set_Speed"] * CV.MPH_TO_KPH
-
     v_wheel = (self.v_wheel_fl + self.v_wheel_fr + self.v_wheel_rl + self.v_wheel_rr) / 4.
     # Kalman filter, even though Hyundai raw wheel speed is heaviliy filtered by default
     if abs(v_wheel - self.v_ego) > 2.0:  # Prevent large accelerations when car starts at non zero speed
@@ -132,8 +148,9 @@ class CarState(object):
     self.prev_right_blinker_on = self.right_blinker_on
     self.left_blinker_on = cp.vl["Dashlights"]['LEFT_BLINKER'] == 1
     self.right_blinker_on = cp.vl["Dashlights"]['RIGHT_BLINKER'] == 1
-    self.seatbelt_unlatched = cp.vl["Dashlights"]['SEATBELT_FL'] == 1
+    self.seatbelt_unlatched = cp.vl["Dashlights"]['SEATBELT_FL'] == 1 if self.car_fingerprint not in (CAR.OUTBACK, CAR.LEGACY) else False
     self.steer_torque_driver = cp.vl["Steering_Torque"]['Steer_Torque_Sensor']
+    self.steer_torque_motor = cp.vl["Steering_Torque"]['Steer_Torque_Output']
     self.acc_active = cp.vl["CruiseControl"]['Cruise_Activated']
     self.main_on = cp.vl["CruiseControl"]['Cruise_On']
     self.steer_override = abs(self.steer_torque_driver) > STEER_THRESHOLD[self.car_fingerprint]
@@ -143,5 +160,11 @@ class CarState(object):
       cp.vl["BodyInfo"]['DOOR_OPEN_FR'],
       cp.vl["BodyInfo"]['DOOR_OPEN_FL']])
 
-    self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
-    self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
+    if self.car_fingerprint not in (CAR.OUTBACK, CAR.LEGACY):
+      self.v_cruise_pcm = cp_cam.vl["ES_DashStatus"]["Cruise_Set_Speed"] * CV.MPH_TO_KPH
+      self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
+      self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
+      self.steer_error = False
+    else:
+      self.v_cruise_pcm = cp_cam.vl["ES_DashStatus"]["Cruise_Set_Speed"]
+      self.steer_error = cp.vl["Steering_Torque"]["LKA_Lockout"]

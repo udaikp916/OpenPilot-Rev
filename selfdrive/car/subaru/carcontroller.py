@@ -2,6 +2,7 @@
 from common.realtime import sec_since_boot
 from selfdrive.boardd.boardd import can_list_to_can_capnp
 from selfdrive.car import apply_std_steer_torque_limits
+from selfdrive.car.subaru.carstate import CarState
 from selfdrive.car.subaru import subarucan
 from selfdrive.car.subaru.values import CAR, DBC
 from selfdrive.can.packer import CANPacker
@@ -13,11 +14,15 @@ class CarControllerParams():
     self.STEER_STEP = 2                # how often we update the steer cmd
     self.STEER_DELTA_UP = 50           # torque increase per refresh, 0.8s to max
     self.STEER_DELTA_DOWN = 70         # torque decrease per refresh
+    self.STEER_ERROR_MAX = 400
     if car_fingerprint == CAR.IMPREZA:
       self.STEER_DRIVER_ALLOWANCE = 60   # allowed driver torque before start limiting
       self.STEER_DRIVER_MULTIPLIER = 10   # weight driver torque heavily
       self.STEER_DRIVER_FACTOR = 1     # from dbc
-
+    if car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
+      self.STEER_DRIVER_ALLOWANCE = 300   # allowed driver torque before start limiting
+      self.STEER_DRIVER_MULTIPLIER = 1   # weight driver torque heavily
+      self.STEER_DRIVER_FACTOR = 1     # from dbc
 
 
 class CarController(object):
@@ -29,6 +34,8 @@ class CarController(object):
     self.car_fingerprint = car_fingerprint
     self.es_distance_cnt = -1
     self.es_lkas_cnt = -1
+    self.counter = 0
+    
 
     # Setup detection helper. Routes commands to
     # an appropriate CAN bus number.
@@ -47,30 +54,43 @@ class CarController(object):
     ### STEER ###
 
     if (frame % P.STEER_STEP) == 0:
-
-      final_steer = actuators.steer if enabled else 0.
+        
+      final_steer = actuators.steer if enabled and not CS.steer_not_allowed else 0.
       apply_steer = int(round(final_steer * P.STEER_MAX))
 
       # limits due to driver torque
-
-      apply_steer = int(round(apply_steer))
       apply_steer = apply_std_steer_torque_limits(apply_steer, self.apply_steer_last, CS.steer_torque_driver, P)
 
-      lkas_enabled = enabled and not CS.steer_not_allowed
-
-      if not lkas_enabled:
-        apply_steer = 0
+      if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
+        
+        if self.apply_steer_last > 300 and not enabled:
+          apply_steer = self.apply_steer_last - P.STEER_DELTA_DOWN
+        elif self.apply_steer_last < -300 and not enabled:
+          apply_steer = self.apply_steer_last + P.STEER_DELTA_DOWN
+          
+        # add noise to prevent lkas fault from constant torque value over 1s
+        if enabled and apply_steer == self.apply_steer_last:
+          self.counter =+ 1
+          if self.counter == 50:
+            apply_steer = round(int(apply_steer * 0.99))
+        else:
+          self.counter = 0
 
       can_sends.append(subarucan.create_steering_control(self.packer, CS.CP.carFingerprint, apply_steer, frame, P.STEER_STEP))
 
       self.apply_steer_last = apply_steer
 
-    if self.es_distance_cnt != CS.es_distance_msg["Counter"]:
-      can_sends.append(subarucan.create_es_distance(self.packer, CS.es_distance_msg, pcm_cancel_cmd))
-      self.es_distance_cnt = CS.es_distance_msg["Counter"]
+    if self.car_fingerprint not in (CAR.OUTBACK, CAR.LEGACY):
 
-    if self.es_lkas_cnt != CS.es_lkas_msg["Counter"]:
-      can_sends.append(subarucan.create_es_lkas(self.packer, CS.es_lkas_msg, visual_alert))
-      self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
+      if self.es_distance_cnt != CS.es_distance_msg["Counter"]:
+        can_sends.append(subarucan.create_es_distance(self.packer, CS.es_distance_msg, pcm_cancel_cmd))
+        self.es_distance_cnt = CS.es_distance_msg["Counter"]
+
+      if self.es_lkas_cnt != CS.es_lkas_msg["Counter"]:
+        can_sends.append(subarucan.create_es_lkas(self.packer, CS.es_lkas_msg, visual_alert))
+        self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
+
+    if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY) and not enabled and CS.acc_active == 1:
+      can_sends.append(subarucan.create_door_control(self.packer))
 
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
