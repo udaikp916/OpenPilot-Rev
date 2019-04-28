@@ -78,10 +78,10 @@ class CarInterface(object):
       ret.centerToFront = ret.wheelbase * 0.5
       ret.steerRatio = 14
       tire_stiffness_factor = 1.0
-      ret.steerActuatorDelay = 0.4   # end-to-end angle controller
+      ret.steerActuatorDelay = 0.4
       ret.steerKf = 0.00004
-      ret.steerKiBP, ret.steerKpBP = [[0.], [0.]]
-      ret.steerKpV, ret.steerKiV = [[0.2], [0.02]]
+      ret.steerKiBP, ret.steerKpBP = [[0.,10.], [0.,10.]]
+      ret.steerKpV, ret.steerKiV = [[0.07,0.15], [0.007,0.015]]
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
@@ -91,10 +91,10 @@ class CarInterface(object):
       ret.centerToFront = ret.wheelbase * 0.5
       ret.steerRatio = 14.5
       tire_stiffness_factor = 1.0
-      ret.steerActuatorDelay = 0.4   # end-to-end angle controller
+      ret.steerActuatorDelay = 0.4
       ret.steerKf = 0.00005
       ret.steerKiBP, ret.steerKpBP = [[0., 20.], [0., 20.]]
-      ret.steerKpV, ret.steerKiV = [[0.2, 0.3], [0.02, 0.03]]
+      ret.steerKpV, ret.steerKiV = [[0.1, 0.2], [0.01, 0.02]]
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 

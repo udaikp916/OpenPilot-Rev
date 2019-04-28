@@ -18,6 +18,8 @@ def get_powertrain_can_parser(CP):
     ("Throttle_Pedal", "Throttle", 0),
     ("LEFT_BLINKER", "Dashlights", 0),
     ("RIGHT_BLINKER", "Dashlights", 0),
+    ("SEATBELT_FL", "Dashlights", 0),
+
     ("FL", "Wheel_Speeds", 0),
     ("FR", "Wheel_Speeds", 0),
     ("RL", "Wheel_Speeds", 0),
@@ -36,9 +38,6 @@ def get_powertrain_can_parser(CP):
   ]
 
   if CP.carFingerprint not in (CAR.OUTBACK, CAR.LEGACY):
-    signals += [
-      ("SEATBELT_FL", "Dashlights", 0),
-    ]
     checks += [
       ("BodyInfo", 10),
       ("CruiseControl", 20),
@@ -148,7 +147,7 @@ class CarState(object):
     self.prev_right_blinker_on = self.right_blinker_on
     self.left_blinker_on = cp.vl["Dashlights"]['LEFT_BLINKER'] == 1
     self.right_blinker_on = cp.vl["Dashlights"]['RIGHT_BLINKER'] == 1
-    self.seatbelt_unlatched = cp.vl["Dashlights"]['SEATBELT_FL'] == 1 if self.car_fingerprint not in (CAR.OUTBACK, CAR.LEGACY) else False
+    self.seatbelt_unlatched = cp.vl["Dashlights"]['SEATBELT_FL'] == 1
     self.steer_torque_driver = cp.vl["Steering_Torque"]['Steer_Torque_Sensor']
     self.steer_torque_motor = cp.vl["Steering_Torque"]['Steer_Torque_Output']
     self.acc_active = cp.vl["CruiseControl"]['Cruise_Activated']

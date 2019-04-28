@@ -14,7 +14,6 @@ class CarControllerParams():
     self.STEER_STEP = 2                # how often we update the steer cmd
     self.STEER_DELTA_UP = 50           # torque increase per refresh, 0.8s to max
     self.STEER_DELTA_DOWN = 70         # torque decrease per refresh
-    self.STEER_ERROR_MAX = 400
     if car_fingerprint == CAR.IMPREZA:
       self.STEER_DRIVER_ALLOWANCE = 60   # allowed driver torque before start limiting
       self.STEER_DRIVER_MULTIPLIER = 10   # weight driver torque heavily
@@ -35,7 +34,7 @@ class CarController(object):
     self.es_distance_cnt = -1
     self.es_lkas_cnt = -1
     self.counter = 0
-    
+
 
     # Setup detection helper. Routes commands to
     # an appropriate CAN bus number.
@@ -54,7 +53,7 @@ class CarController(object):
     ### STEER ###
 
     if (frame % P.STEER_STEP) == 0:
-        
+
       final_steer = actuators.steer if enabled and not CS.steer_not_allowed else 0.
       apply_steer = int(round(final_steer * P.STEER_MAX))
 
@@ -62,12 +61,7 @@ class CarController(object):
       apply_steer = apply_std_steer_torque_limits(apply_steer, self.apply_steer_last, CS.steer_torque_driver, P)
 
       if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
-        
-        if self.apply_steer_last > 300 and not enabled:
-          apply_steer = self.apply_steer_last - P.STEER_DELTA_DOWN
-        elif self.apply_steer_last < -300 and not enabled:
-          apply_steer = self.apply_steer_last + P.STEER_DELTA_DOWN
-          
+
         # add noise to prevent lkas fault from constant torque value over 1s
         if enabled and apply_steer == self.apply_steer_last:
           self.counter =+ 1
