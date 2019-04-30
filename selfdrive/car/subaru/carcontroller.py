@@ -22,6 +22,7 @@ class CarControllerParams():
       self.STEER_DRIVER_ALLOWANCE = 300   # allowed driver torque before start limiting
       self.STEER_DRIVER_MULTIPLIER = 1   # weight driver torque heavily
       self.STEER_DRIVER_FACTOR = 1     # from dbc
+      self.STEER_DELTA_DOWN = 60         # torque decrease per refresh
 
 
 class CarController(object):
