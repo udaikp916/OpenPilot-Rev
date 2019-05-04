@@ -30,7 +30,7 @@ static void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
     // update array of samples
     update_sample(&subaru_torque_driver, torque_driver_new);
   } else if ((addr == 0x371) && (bus_number == 0)){
-    int torque_driver_new = ((to_push->RDLR >> 30) & 0x3FF);
+    int torque_driver_new = ((to_push->RDLR >> 29) & 0x7FF);
     torque_driver_new = to_signed(torque_driver_new, 10);
     // update array of samples
     update_sample(&subaru_torque_driver, torque_driver_new);
