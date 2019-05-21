@@ -91,7 +91,7 @@ def get_camera_can_parser(CP):
       ("Signal5", "ES_LKAS_State", 0),
     ]
 
-  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
+  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2)
 
 class CarState(object):
   def __init__(self, CP):

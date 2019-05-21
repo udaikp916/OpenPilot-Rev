@@ -127,7 +127,7 @@ static int subaru_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
     return 2; // ES CAN
   }
-  // forward CAN 1 > 0, except ES_LKAS
+  // forward CAN 2 > 0, except ES_LKAS
   else if (bus_num == 2) {
 
     // outback 2015

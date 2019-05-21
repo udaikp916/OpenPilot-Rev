@@ -66,7 +66,7 @@ class CarController(object):
 
       if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
 
-        # add noise to prevent lkas fault from constant torque value over 1s
+        # add noise to prevent lkas fault from constant torque value for over 1s
         if enabled and apply_steer == self.apply_steer_last:
           self.counter =+ 1
           if self.counter == 50:
