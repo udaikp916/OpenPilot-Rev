@@ -1,5 +1,7 @@
 from selfdrive.car import dbc_dict
 
+MAX_ANGLE = 87.  # make sure we never command the extremes (0xfff) which cause latching fault
+
 class CAR:
   FUSION = "FORD FUSION 2018"
   EXPLORER = "FORD EXPLORER 2013"
