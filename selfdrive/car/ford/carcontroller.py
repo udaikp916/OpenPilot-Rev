@@ -12,7 +12,7 @@ class CarController(object):
   def update(self, sendcan, enabled, CS, frame, actuators):
 
     can_sends = []
-
+    '''
     if (frame % 1) == 0:
       if enabled:
         can_sends(0x3ca, 0, "\x9f\x00\x00\x00\x00\x00\xac\x00", 0)
@@ -33,5 +33,5 @@ class CarController(object):
         can_sends(0x3d8, 0, "\x00\x00\x00\x00\x00\x00\xac\x00", 0)
       else:
         can_sends(0x3d8, 0, "\x00\x00\x00\x00\x00\x00\xbe\x00", 0)
-
+    '''
     sendcan.send(can_list_to_can_capnp(can_sends, msgtype='sendcan').to_bytes())
