@@ -18,17 +18,14 @@ class CarController(object):
     self.vehicle_model = vehicle_model
     self.lkas_action = 0
 
-  def update(self, sendcan, enabled, CS, frame, actuators, visual_alert, pcm_cancel):
+  def update(self, sendcan, enabled, CS, frame, actuators):
 
     can_sends = []
-    steer_alert = visual_alert == car.CarControl.HUDControl.VisualAlert.steerRequired
+    steer_alert = False
 
     apply_steer = actuators.steer
 
     if self.enable_camera:
-
-      if pcm_cancel:
-        can_sends.append(spam_cancel_button(self.packer))
 
       if (frame % 3) == 0:
 

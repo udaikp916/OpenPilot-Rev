@@ -44,9 +44,3 @@ def create_lkas_ui(packer, main_on, enabled, steer_alert):
     "Hands_Warning_W_Chime": steer_alert,
   }
   return packer.make_can_msg("Lane_Keep_Assist_Ui", 0, values)
-
-def spam_cancel_button(packer):
-  values = {
-    "Cancel": 1
-  }
-  return packer.make_can_msg("Steering_Buttons", 0, values)
