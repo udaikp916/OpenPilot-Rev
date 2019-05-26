@@ -33,7 +33,7 @@ class CarInterface(object):
     # sending if read only is False
     if sendcan is not None:
       self.sendcan = sendcan
-      self.CC = CarController(CP.car_fingerprint)
+      self.CC = CarController(CP.carFingerprint)
 
   @staticmethod
   def compute_gb(accel, speed):
