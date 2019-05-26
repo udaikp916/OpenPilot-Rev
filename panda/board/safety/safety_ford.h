@@ -89,14 +89,26 @@ static int ford_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   // shifts bits 29 > 11
   int32_t addr = to_fwd->RIR >> 21;
 
-  // forward CAN 0 > 1
+  // forward CAN 0 > 2
   if (bus_num == 0) {
 
     return 2; // ES CAN
   }
-  // forward CAN 1 > 0, except ES_LKAS
+  // forward CAN 2 > 0, except LKAS
   else if (bus_num == 2) {
-
+    
+    if (addr == 0x3ca) {
+      return -1;
+    }
+    
+    if (addr == 0x3d8) {
+      return -1;
+    }
+    
+    if (addr == 0x83) {
+      return -1;
+    }
+    
     return 0; // Main CAN
   }
 
