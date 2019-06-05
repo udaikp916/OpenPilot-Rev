@@ -59,9 +59,9 @@ BO_ 374 Maybe_Motor_RPM_or_Speed: 8 XXX
 BO_ 460 Maybe_Brake_Related: 8 XXX
 
 BO_ 2 SteeringWheel: 8 XXX
- SG_ Always_07 : 31|8@0+ (1,0) [0|255] "" XXX
  SG_ Steering_Angle : 0|16@1- (1,0) [0|65535] "" XXX
  SG_ Steering_RateChange : 23|8@0+ (1,0) [0|255] "" XXX
+ SG_ Always_07 : 31|8@0+ (1,0) [0|255] "" XXX
 
 BO_ 384 Maybe_PowerInfo: 8 XXX
  SG_ Unknown_Timer_PowerInfo : 48|4@1+ (1,0) [0|15] "" XXX
@@ -71,8 +71,5 @@ BO_ 384 Maybe_PowerInfo: 8 XXX
 BO_ 1376 NEW_MSG_1: 8 XXX
 
 BO_ 666 Speed_3: 8 XXX
- SG_ WHEEL SPEED? : 7|16@0+ (1,0) [0|65535] "" XXX
- SG_ WHEEL SPEED2? : 23|16@0+ (1,0) [0|65535] "" XXX
 
 BO_ 398 NEW_MSG_2: 8 XXX
- SG_ Accel? : 7|16@0+ (1,0) [0|65535] "" XXX
