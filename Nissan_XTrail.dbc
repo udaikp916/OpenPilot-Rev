@@ -45,7 +45,7 @@ BO_ 645 Speed_2: 8 XXX
  SG_ Speed_RR : 7|16@0+ (0.0118,0) [0|65535] "" XXX
  SG_ Speed_RL : 23|16@0+ (0.0118,0) [0|65535] "" XXX
 
-BO_ 768 Unknown_Steer: 8 XXX
+BO_ 768 STEER_TORQUE: 8 XXX
  SG_ STEERING_TOURQUE : 0|7@1+ (1,0) [0|127] "" XXX
 
 BO_ 459 Maybe_RegenBraking: 8 XXX
@@ -69,4 +69,7 @@ BO_ 384 Maybe_PowerInfo: 8 XXX
  SG_ RequestedAccel : 23|12@0- (1,0) [0|4294967295] "" XXX
 
 BO_ 1376 NEW_MSG_1: 8 XXX
- SG_ GEAR? : 24|2@1+ (1,0) [0|3] "" XXX
+
+BO_ 666 Speed_3: 8 XXX
+ SG_ WHEEL SPEED? : 7|16@0+ (1,0) [0|65535] "" XXX
+ SG_ WHEEL SPEED2? : 23|16@0+ (1,0) [0|65535] "" XXX
