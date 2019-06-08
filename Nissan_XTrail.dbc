@@ -93,3 +93,10 @@ BO_ 773 NEW_MSG_7: 8 XXX
 
 BO_ 851 MaybeAcceleratorRPM: 8 XXX
  SG_ MaybeAcceleratorRPM : 7|16@0+ (1,0) [0|65535] "" XXX
+
+BO_ 386 Accelerator: 8 XXX
+ SG_ Accelerator : 38|7@0+ (1,0) [0|127] "" XXX
+
+BO_ 347 ACCELSOMETHING: 8 XXX
+ SG_ ACCELERATOR2 : 6|11@0+ (1,0) [0|65535] "" XXX
+ SG_ PowerMaybe : 9|10@0+ (1,0) [0|1023] "" XXX
