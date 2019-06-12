@@ -92,6 +92,8 @@ keys = {
   "Offroad_TemperatureTooHigh": [TxType.CLEAR_ON_MANAGER_START],
   "Offroad_ConnectivityNeededPrompt": [TxType.CLEAR_ON_MANAGER_START],
   "Offroad_ConnectivityNeeded": [TxType.CLEAR_ON_MANAGER_START],
+  "PandaFirmware": [TxType.PERSISTENT],
+  "PandaDongleId": [TxType.PERSISTENT],
 }
 
 
