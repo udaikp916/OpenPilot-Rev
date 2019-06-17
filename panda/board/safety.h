@@ -104,7 +104,7 @@ int safety_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   if (bus_num == 0) {
     return 0; // CAR CAN
   }
-  return -1
+  return -1;
 }
 
 int safety_relay_hook(void) {
