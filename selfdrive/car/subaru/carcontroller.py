@@ -83,14 +83,10 @@ class CarController(object):
         self.es_distance_cnt = CS.es_distance_msg["Counter"]
 
       if self.es_lkas_cnt != CS.es_lkas_msg["Counter"]:
-        can_sends.append(subarucan.create_es_lkas(self.packer, CS.es_lkas_msg, visual_alert))
+        can_sends.append(subarucan.create_es_lkas(self.packer, CS.es_lkas_msg, visual_alert, left_line, right_line))
         self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
 
     if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY) and pcm_cancel_cmd:
       can_sends.append(subarucan.create_door_control(self.packer))
-
-    if self.es_lkas_cnt != CS.es_lkas_msg["Counter"]:
-      can_sends.append(subarucan.create_es_lkas(self.packer, CS.es_lkas_msg, visual_alert, left_line, right_line))
-      self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
 
     return can_sends
