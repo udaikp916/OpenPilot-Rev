@@ -54,7 +54,7 @@ typedef struct {
 } safety_hooks;
 
 // This can be set by the safety hooks.
-int controls_allowed = 0;
+int controls_allowed = 1;
 
 // Include the actual safety policies.
 #include "safety/safety_defaults.h"
@@ -94,7 +94,17 @@ int safety_ignition_hook() {
   return current_hooks->ignition();
 }
 int safety_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
-  return current_hooks->fwd(bus_num, to_fwd);
+  // return current_hooks->fwd(bus_num, to_fwd);
+
+  // forward CAN 0 > 2
+  if (bus_num == 0) {
+    return 2; // CAM CAN
+  }
+  // forward CAN 2 > 0
+  if (bus_num == 0) {
+    return 0; // CAR CAN
+  }
+  return -1
 }
 
 int safety_relay_hook(void) {
