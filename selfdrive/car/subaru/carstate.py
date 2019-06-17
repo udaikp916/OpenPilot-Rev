@@ -27,7 +27,6 @@ def get_powertrain_can_parser(CP):
     ("DOOR_OPEN_FL", "BodyInfo", 1),
     ("DOOR_OPEN_RR", "BodyInfo", 1),
     ("DOOR_OPEN_RL", "BodyInfo", 1),
-    ("Units", "Dash_State", 1),
   ]
 
   checks = [
@@ -41,6 +40,7 @@ def get_powertrain_can_parser(CP):
     checks += [
       ("BodyInfo", 10),
       ("CruiseControl", 20),
+      ("Units", "Dash_State", 1),
     ]
 
   else:
@@ -132,9 +132,6 @@ class CarState(object):
     self.v_wheel_rr = cp.vl["Wheel_Speeds"]['RR'] * CV.KPH_TO_MS
 
     self.v_cruise_pcm = cp_cam.vl["ES_DashStatus"]['Cruise_Set_Speed']
-    # 1 = imperial, 6 = metric
-    if cp.vl["Dash_State"]['Units'] == 1:
-      self.v_cruise_pcm *= CV.MPH_TO_KPH
 
     v_wheel = (self.v_wheel_fl + self.v_wheel_fr + self.v_wheel_rl + self.v_wheel_rr) / 4.
     # Kalman filter, even though Subaru raw wheel speed is heaviliy filtered by default
@@ -168,6 +165,9 @@ class CarState(object):
       self.v_cruise_pcm = cp_cam.vl["ES_DashStatus"]["Cruise_Set_Speed"] * CV.MPH_TO_KPH
       self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
       self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
+      # 1 = imperial, 6 = metric
+      if cp.vl["Dash_State"]['Units'] == 1:
+        self.v_cruise_pcm *= CV.MPH_TO_KPH     
     else:
       self.v_cruise_pcm = cp_cam.vl["ES_DashStatus"]["Cruise_Set_Speed"]
       self.steer_not_allowed = cp.vl["Steering_Torque"]["LKA_Lockout"]
