@@ -7,18 +7,18 @@ int default_ign_hook() {
 // *** no output safety mode ***
 
 static void nooutput_init(int16_t param) {
-  controls_allowed = 0;
+  controls_allowed = 1;
   #ifdef PANDA
     lline_relay_release();
   #endif
 }
 
 static int nooutput_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
-  return false;
+  return true;
 }
 
 static int nooutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
-  return false;
+  return true;
 }
 
 static int nooutput_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
@@ -26,7 +26,7 @@ static int nooutput_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 }
 
 static int nooutput_relay_hook(int to_set) {
-  return false;
+  return true;
 }
 
 const safety_hooks nooutput_hooks = {
