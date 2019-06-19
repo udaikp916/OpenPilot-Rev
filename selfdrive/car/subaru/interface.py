@@ -72,11 +72,11 @@ class CarInterface(object):
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
       ret.steerRatio = 20            # learned, 14 stock
-      tire_stiffness_factor = 1.9
-      ret.steerActuatorDelay = 0.4
+      tire_stiffness_factor = 1
+      ret.steerActuatorDelay = 0.5
       ret.lateralTuning.init('indi')
-      ret.lateralTuning.indi.innerLoopGain = 4.0
-      ret.lateralTuning.indi.outerLoopGain = 3.0
+      ret.lateralTuning.indi.innerLoopGain = 3
+      ret.lateralTuning.indi.outerLoopGain = 1.8
       ret.lateralTuning.indi.timeConstant = 1.0
       ret.lateralTuning.indi.actuatorEffectiveness = 1.0
       ret.steerMaxBP = [0.] # m/s
