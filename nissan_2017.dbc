@@ -80,10 +80,11 @@ BO_ 398 NEW_MSG_2: 8 XXX
 BO_ 389 NEW_MSG_3: 8 XXX
  SG_ NEW_SIGNAL_1 : 15|8@0+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_2 : 22|6@0+ (1,0) [0|3] "" XXX
- SG_ NEW_SIGNAL_3 : 23|16@0+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_4 : 47|8@0+ (1,0) [0|255] "" XXX
- SG_ NEW_SIGNAL_5 : 55|8@0+ (1,0) [0|255] "" XXX
+ SG_ NEW_SIGNAL_5 : 55|4@0+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_6 : 63|8@0+ (1,0) [0|127] "" XXX
+ SG_ COUNTER : 48|4@1+ (1,0) [0|15] "" XXX
+ SG_ NEW_SIGNAL_3 : 30|8@0- (1,0) [0|255] "" XXX
 
 BO_ 397 NEW_MSG_4: 8 XXX
  SG_ NEW_SIGNAL_1 : 7|16@0+ (1,0) [0|3] "" XXX
@@ -171,10 +172,10 @@ BO_ 438 ProPilot: 8 XXX
  SG_ NEW_SIGNAL_4 : 27|4@0+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_8 : 63|8@0+ (1,0) [0|7] "" XXX
  SG_ Counter : 55|4@0+ (1,0) [0|255] "" XXX
- SG_ Steer_Status : 51|1@1+ (1,0) [0|3] "" XXX
  SG_ NEW_SIGNAL_6 : 47|8@0+ (1,0) [0|255] "" XXX
- SG_ Main_On : 36|1@0+ (1,0) [0|255] "" XXX
- SG_ Cruise_Status : 38|1@0+ (1,0) [0|3] "" XXX
  SG_ SET_3 : 32|2@1+ (1,0) [0|15] "" XXX
  SG_ NEW_SIGNAL_1 : 7|12@0- (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_3 : 23|12@0- (-1,0) [0|255] "" XXX
+ SG_ CRUISE_ON : 36|1@0+ (1,0) [0|255] "" XXX
+ SG_ CRUISE_ACTIVATED : 38|1@0+ (1,0) [0|3] "" XXX
+ SG_ STEER_STATUS : 51|1@1+ (1,0) [0|3] "" XXX
