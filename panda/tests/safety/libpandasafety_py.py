@@ -98,6 +98,13 @@ void set_subaru_desired_torque_last(int t);
 void set_subaru_rt_torque_last(int t);
 void set_subaru_torque_driver(int min, int max);
 
+# void init_tests_nissan(void);
+# void nissan_rx_hook(CAN_FIFOMailBox_TypeDef *to_push);
+# int nissan_tx_hook(CAN_FIFOMailBox_TypeDef *to_send);
+# void set_nissan_desired_torque_last(int t);
+# void set_nissan_rt_torque_last(int t);
+# void set_nissan_torque_driver(int min, int max);
+
 
 """)
 
