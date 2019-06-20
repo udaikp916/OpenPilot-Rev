@@ -132,23 +132,23 @@ BO_ 779 ANOTHERRRFULLRANGEACCEL: 8 XXX
  SG_ ANOTHERRRFULLRANGEACCEL : 47|8@0+ (1,0) [0|255] "" XXX
 
 BO_ 1108 DOORS: 8 XXX
- SG_ FR_DOOR_OPEN : 47|1@0+ (1,0) [0|3] "" XXX
- SG_ RR_DOOR_CLOSED : 40|1@0+ (1,0) [0|1] "" XXX
- SG_ FL_DOOR_CLOSED : 44|1@0+ (1,0) [0|1] "" XXX
- SG_ FL_DOOR_OPEN : 45|1@0+ (1,0) [0|1] "" XXX
- SG_ FR_DOOR_CLOSED : 46|1@0+ (1,0) [0|3] "" XXX
- SG_ RR_DOOR_OPEN : 41|1@0+ (1,0) [0|1] "" XXX
- SG_ RL_DOOR_CLOSED : 42|1@0+ (1,0) [0|1] "" XXX
- SG_ RL_DOOR_OPEN : 43|1@0+ (1,0) [0|1] "" XXX
+ SG_ DOOR_CLOSED_RR : 40|1@0+ (1,0) [0|1] "" XXX
+ SG_ DOOR_OPEN_RR : 41|1@0+ (1,0) [0|1] "" XXX
+ SG_ DOOR_CLOSED_RL : 42|1@0+ (1,0) [0|1] "" XXX
+ SG_ DOOR_OPEN_RL : 43|1@0+ (1,0) [0|1] "" XXX
+ SG_ DOOR_CLOSED_FL : 44|1@0+ (1,0) [0|1] "" XXX
+ SG_ DOOR_OPEN_FL : 45|1@0+ (1,0) [0|1] "" XXX
+ SG_ DOOR_CLOSED_FR : 46|1@0+ (1,0) [0|3] "" XXX
+ SG_ DOOR_OPEN_FR : 47|1@0+ (1,0) [0|3] "" XXX
  SG_ BOOT_OPEN : 55|1@0+ (1,0) [0|1] "" XXX
 
 BO_ 403 LKAS: 8 XXX
  SG_ Checksum : 63|8@0+ (1,0) [0|255] "" XXX
  SG_ Angle_2 : 32|13@0+ (1,-4000) [0|63] "" XXX
  SG_ Counter : 48|4@1+ (1,0) [0|15] "" XXX
+ SG_ Angle_1 : 10|13@0+ (0.12,-480) [0|65535] "" XXX
  SG_ Steering_Torque : 7|13@0+ (-1,4000) [0|65535] "" XXX
  SG_ Torque_Command : 29|13@0+ (1,-4000) [0|255] "" XXX
- SG_ Angle_1 : 10|13@0+ (0.12,-480) [0|65535] "" XXX
 
 BO_ 412 NEW_MSG_9: 8 XXX
  SG_ NEW_SIGNAL_1 : 7|16@0+ (1,0) [0|65535] "" XXX
