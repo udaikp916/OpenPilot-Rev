@@ -166,7 +166,7 @@ BO_ 361 LKAS: 8 XXX
  SG_ CRC : 63|8@0+ (1,0) [0|255] "" XXX
  SG_ Counter : 48|4@1+ (1,0) [0|15] "" XXX
 
-BO_ 438 NEW_MSG_11: 8 XXX
+BO_ 438 ProPilot: 8 XXX
  SG_ NEW_SIGNAL_2 : 11|4@0+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_4 : 27|4@0+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_8 : 63|8@0+ (1,0) [0|7] "" XXX
