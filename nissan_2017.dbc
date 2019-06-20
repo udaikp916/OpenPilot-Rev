@@ -42,8 +42,8 @@ BO_ 644 Speed_1: 8 XXX
  SG_ Speed_Vehicle : 39|16@0+ (0.0245,0) [0|65535] "" XXX
 
 BO_ 645 Speed_2: 8 XXX
- SG_ Speed_RR : 7|16@0+ (0.0118,0) [0|65535] "" XXX
- SG_ Speed_RL : 23|16@0+ (0.0118,0) [0|65535] "" XXX
+ SG_ Speed_RR : 7|16@0+ (0.00555,0) [0|65535] "" XXX
+ SG_ Speed_RL : 23|16@0+ (0.00555,0) [0|65535] "" XXX
 
 BO_ 768 STEER_TORQUE: 8 XXX
  SG_ STEERING_TOURQUE : 0|7@1+ (1,0) [0|127] "" XXX
@@ -73,7 +73,7 @@ BO_ 1376 NEW_MSG_1: 8 XXX
 BO_ 666 Speed_3: 8 XXX
  SG_ FR_WHEELSPEED : 7|16@0+ (1,0) [0|65535] "" XXX
  SG_ FL_WHEELSPEED : 23|16@0+ (1,0) [0|65535] "" XXX
- SG_ DUNNO_FL_WHEELSPEED : 39|16@0+ (1,0) [0|65535] "" XXX
+ SG_ DUNNO_FL_WHEELSPEED : 39|16@0+ (0.01014,0) [0|65535] "" XXX
 
 BO_ 398 NEW_MSG_2: 8 XXX
 
@@ -102,7 +102,7 @@ BO_ 773 NEW_MSG_7: 8 XXX
  SG_ NEW_SIGNAL_2 : 47|8@0+ (1,0) [0|255] "" XXX
 
 BO_ 851 SPEED_RELATED: 8 XXX
- SG_ SPEED_RELATED : 7|16@0+ (1,0) [0|65535] "" XXX
+ SG_ SPEED_RELATED : 7|16@0+ (0.01014,0) [0|65535] "" XXX
 
 BO_ 386 Accelerator: 8 XXX
  SG_ Accelerator : 38|7@0+ (1,0) [0|127] "" XXX
@@ -156,7 +156,7 @@ BO_ 412 NEW_MSG_9: 8 XXX
  SG_ NEW_SIGNAL_2 : 39|8@0+ (1,0) [0|3] "" XXX
  SG_ NEW_SIGNAL_4 : 47|8@0+ (1,0) [0|255] "" XXX
 
- BO_ 361 LKAS: 8 XXX
+BO_ 361 LKAS: 8 XXX
  SG_ NEW_SIGNAL_4 : 39|8@0+ (1,0) [0|255] "" XXX
  SG_ Des_Angle : 7|17@0+ (1,0) [0|255] "" XXX
  SG_ SET_0x80_2 : 31|8@0+ (1,0) [0|255] "" XXX
@@ -178,4 +178,3 @@ BO_ 438 NEW_MSG_11: 8 XXX
  SG_ SET_3 : 32|2@1+ (1,0) [0|15] "" XXX
  SG_ NEW_SIGNAL_1 : 7|12@0- (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_3 : 23|12@0- (-1,0) [0|255] "" XXX
- 
