@@ -89,7 +89,7 @@ int safety_ignition_hook() {
 }
 int safety_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   // return current_hooks->fwd(bus_num, to_fwd);
-
+  int32_t addr = to_fwd->RIR >> 21;
   // forward CAN 0 > 2
   if (bus_num == 0) {
     return 2; // CAM CAN
