@@ -143,7 +143,7 @@ BO_ 1108 Doors: 8 XXX
  SG_ DOOR_OPEN_FR : 47|1@0+ (1,0) [0|3] "" XXX
  SG_ BOOT_OPEN : 55|1@0+ (1,0) [0|1] "" XXX
 
-BO_ 403 _LKAS: 8 XXX
+BO_ 403 LKAS_OLD: 8 XXX
  SG_ Checksum : 63|8@0+ (1,0) [0|255] "" XXX
  SG_ Angle_2 : 32|13@0+ (1,-4000) [0|63] "" XXX
  SG_ Counter : 48|4@1+ (1,0) [0|15] "" XXX
