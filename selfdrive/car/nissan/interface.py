@@ -72,7 +72,7 @@ class CarInterface(object):
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
-    ret.steerControlType = car.CarParams.SteerControlType.torque
+    ret.steerControlType = car.CarParams.SteerControlType.angle
     ret.steerRatioRear = 0.
     # testing tuning
 
