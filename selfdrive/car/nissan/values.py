@@ -9,6 +9,9 @@ FINGERPRINTS = {
   }],
 }
 
+STEER_THRESHOLD = {
+  CAR.XTRAIL: 80,
+}
 
 DBC = {
   CAR.XTRAIL: dbc_dict('nissan_2017', None),
