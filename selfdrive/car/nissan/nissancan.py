@@ -1,4 +1,5 @@
 import copy
+import crcmod
 from cereal import car
 from selfdrive.car.nissan.values import CAR
 
