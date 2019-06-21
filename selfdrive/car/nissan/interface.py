@@ -216,6 +216,5 @@ class CarInterface(object):
     return ret.as_reader()
 
   def apply(self, c):
-    self.CC.update(self.sendcan, c.enabled, self.CS, self.frame, c.actuators,
-                   c.cruiseControl.cancel, c.hudControl.visualAlert)
+    self.CC.update(self.sendcan, c.enabled, self.CS, self.frame, c.actuators)
     self.frame += 1

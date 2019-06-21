@@ -15,9 +15,7 @@ uint32_t nissan_ts_last = 0;
 struct sample_t nissan_torque_driver;         // last few driver torques measured
 
 static void nissan_init(int16_t param) {
-  #ifdef PANDA
-    lline_relay_init();
-  #endif
+  controls_allowed = 1;
 }
 
 static void nissan_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
@@ -110,7 +108,9 @@ static int nissan_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   }
   // forward CAN 2 > 0
   else if (bus_num == 2) {
-
+    if (addr == 0x169) {
+      return -1;
+    }
     return 0; // Main CAN
   }
 
