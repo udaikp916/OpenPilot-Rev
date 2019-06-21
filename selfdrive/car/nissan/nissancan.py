@@ -16,9 +16,9 @@ def create_steering_control(packer, car_fingerprint, apply_steer, frame, enabled
       "Des_Angle": apply_steer,
       "SET_0x80_2": 0x80,
       "SET_X80": 0x80,
-      "NEW_SIGNAL_4": 0x06 if enabled,
+      "NEW_SIGNAL_4": 0x06 if enabled else 0,
       "Counter": idx,
-      "LKA_Active": 1 if enabled,
+      "LKA_Active": 1 if enabled else 0,
     }
     
     dat = packer.make_can_msg("LKAS", 0, values)[2]
