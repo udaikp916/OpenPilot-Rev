@@ -44,7 +44,7 @@ class CarInterface(object):
     return 1.0
 
   @staticmethod
-  def get_params(candidate, fingerprint):
+  def get_params(candidate, fingerprint, vin=""):
     ret = car.CarParams.new_message()
 
     ret.carName = "nissan"
