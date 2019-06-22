@@ -93,8 +93,8 @@ class CarState(object):
     self.standstill = self.v_ego_raw < 0.01
     self.prev_left_blinker_on = self.left_blinker_on
     self.prev_right_blinker_on = self.right_blinker_on
-    self.left_blinker_on = False
-    self.right_blinker_on = False
+    self.left_blinker_on = cp.vl["Lights"]['LEFT_BLINKER']
+    self.right_blinker_on = cp.vl["Lights"]['RIGHT_BLINKER']
     self.seatbelt_unlatched = False
     self.steer_torque_driver = cp.vl["STEER_TORQUE"]['STEERING_TOURQUE']
     self.acc_active = cp_cam.vl["ProPilot"]['CRUISE_ACTIVATED']
