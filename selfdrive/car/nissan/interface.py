@@ -52,7 +52,7 @@ class CarInterface(object):
     ret.enableCamera = True
 
     std_cargo = 136
-    ret.steerRateCost = 0.7
+    ret.steerRateCost = 0.5
 
     if candidate in [CAR.XTRAIL]:
       ret.mass = 1568 + std_cargo
@@ -60,14 +60,14 @@ class CarInterface(object):
       ret.centerToFront = ret.wheelbase * 0.5
       ret.steerRatio = 15
       tire_stiffness_factor = 1.0
-      ret.steerActuatorDelay = 0.4   # end-to-end angle controller
-      ret.lateralTuning.pid.kf = 0.00005
-      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
-      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.2, 0.3], [0.02, 0.03]]
+      ret.steerActuatorDelay = 0.1
+      ret.lateralTuning.pid.kf = 0.0
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.0], [0.0]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.01], [0.005]]
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
-    ret.steerControlType = car.CarParams.SteerControlType.torque
+    ret.steerControlType = car.CarParams.SteerControlType.angle
     ret.steerRatioRear = 0.
     # testing tuning
 
@@ -142,7 +142,7 @@ class CarInterface(object):
     ret.steeringPressed = self.CS.steer_override
     ret.steeringTorque = self.CS.steer_torque_driver
 
-    ret.gas = self.CS.pedal_gas / 255.
+    ret.gas = self.CS.pedal_gas
     ret.gasPressed = self.CS.user_gas_pressed
 
     # cruise state
@@ -195,10 +195,6 @@ class CarInterface(object):
       events.append(create_event('pcmEnable', [ET.ENABLE]))
     if not self.CS.acc_active:
       events.append(create_event('pcmDisable', [ET.USER_DISABLE]))
-
-    # disable on gas pedal rising edge
-    if (ret.gasPressed and not self.gas_pressed_prev):
-      events.append(create_event('pedalPressed', [ET.NO_ENTRY, ET.USER_DISABLE]))
 
     if ret.gasPressed:
       events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
