@@ -7,14 +7,9 @@ from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.car.nissan.values import CAR
 from selfdrive.car.nissan.carstate import CarState, get_powertrain_can_parser, get_camera_can_parser
 
-try:
-  from selfdrive.car.nissan.carcontroller import CarController
-except ImportError:
-  CarController = None
-
 
 class CarInterface(object):
-  def __init__(self, CP, sendcan=None):
+  def __init__(self, CP, CarController):
     self.CP = CP
 
     self.frame = 0
@@ -30,9 +25,8 @@ class CarInterface(object):
 
     self.gas_pressed_prev = False
 
-    # sending if read only is False
-    if sendcan is not None:
-      self.sendcan = sendcan
+    self.CC = None
+    if CarController is not None:
       self.CC = CarController(CP.carFingerprint)
 
   @staticmethod
@@ -49,6 +43,7 @@ class CarInterface(object):
 
     ret.carName = "nissan"
     ret.carFingerprint = candidate
+    ret.carVin = vin
     ret.safetyModel = car.CarParams.SafetyModels.nissan
 
     ret.enableCruise = True
@@ -72,7 +67,7 @@ class CarInterface(object):
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
-    ret.steerControlType = car.CarParams.SteerControlType.angle
+    ret.steerControlType = car.CarParams.SteerControlType.torque
     ret.steerRatioRear = 0.
     # testing tuning
 
@@ -101,7 +96,7 @@ class CarInterface(object):
     tireStiffnessRear_civic = 202500
     centerToRear = ret.wheelbase - ret.centerToFront
 
-     # TODO: get actual value, for now starting with reasonable value for
+    # TODO: get actual value, for now starting with reasonable value for
     # civic and scaling by mass and wheelbase
     ret.rotationalInertia = rotationalInertia_civic * \
                             ret.mass * ret.wheelbase**2 / (mass_civic * wheelbase_civic**2)
@@ -119,9 +114,10 @@ class CarInterface(object):
 
   # returns a car.CarState
   def update(self, c):
+    can_rcv_error = not self.pt_cp.update(int(sec_since_boot() * 1e9), True)
+    cam_rcv_error = not self.cam_cp.update(int(sec_since_boot() * 1e9), False)
+    can_rcv_error = can_rcv_error or cam_rcv_error
 
-    self.pt_cp.update(int(sec_since_boot() * 1e9), False)
-    self.cam_cp.update(int(sec_since_boot() * 1e9), False)
     self.CS.update(self.pt_cp, self.cam_cp)
 
     # create message
@@ -183,10 +179,11 @@ class CarInterface(object):
     events = []
     if not self.CS.can_valid:
       self.can_invalid_count += 1
-      if self.can_invalid_count >= 5:
-        events.append(create_event('commIssue', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE]))
     else:
       self.can_invalid_count = 0
+
+    if can_rcv_error or self.can_invalid_count >= 5:
+      events.append(create_event('commIssue', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE]))
 
     if ret.seatbeltUnlatched:
       events.append(create_event('seatbeltNotLatched', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
@@ -198,6 +195,10 @@ class CarInterface(object):
       events.append(create_event('pcmEnable', [ET.ENABLE]))
     if not self.CS.acc_active:
       events.append(create_event('pcmDisable', [ET.USER_DISABLE]))
+
+    # disable on gas pedal rising edge
+    if (ret.gasPressed and not self.gas_pressed_prev):
+      events.append(create_event('pedalPressed', [ET.NO_ENTRY, ET.USER_DISABLE]))
 
     if ret.gasPressed:
       events.append(create_event('pedalPressed', [ET.PRE_ENABLE]))
@@ -212,5 +213,6 @@ class CarInterface(object):
     return ret.as_reader()
 
   def apply(self, c):
-    self.CC.update(self.sendcan, c.enabled, self.CS, self.frame, c.actuators)
+    can_sends = self.CC.update(c.enabled, self.CS, self.frame, c.actuators)
     self.frame += 1
+    return can_sends
