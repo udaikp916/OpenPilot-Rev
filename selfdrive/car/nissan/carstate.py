@@ -97,8 +97,8 @@ class CarState(object):
     self.right_blinker_on = False
     self.seatbelt_unlatched = False
     self.steer_torque_driver = cp.vl["STEER_TORQUE"]['STEERING_TOURQUE']
-    self.acc_active = cp.vl["ProPilot"]['CRUISE_ACTIVATED']
-    self.main_on = cp.vl["ProPilot"]['CRUISE_ON']
+    self.acc_active = cp_cam.vl["ProPilot"]['CRUISE_ACTIVATED']
+    self.main_on = cp_cam.vl["ProPilot"]['CRUISE_ON']
     self.steer_override = abs(self.steer_torque_driver) > 2
     self.angle_steers = cp.vl["SteeringWheel"]['Steering_Angle']
     self.door_open = any([cp.vl["Doors"]['DOOR_OPEN_RR'],
