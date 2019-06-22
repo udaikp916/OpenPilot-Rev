@@ -19,7 +19,7 @@ class CarController(object):
     print(DBC)
     self.packer = CANPacker(DBC[car_fingerprint]['pt'])
 
-  def update(self, enabled, CS, frame, actuators): #, pcm_cancel_cmd, visual_alert, left_line, right_line):
+  def update(self, CS, frame, actuators): #, pcm_cancel_cmd, visual_alert, left_line, right_line):
     """ Controls thread """
 
     P = self.params
@@ -28,9 +28,9 @@ class CarController(object):
     can_sends = []
 
     ### STEER ###
-
+    steer_on = CS.steer_on
     apply_steer = actuators.steer
 
-    can_sends.append(nissancan.create_steering_control(self.packer, CS.CP.carFingerprint, apply_steer, frame, enabled))
+    can_sends.append(nissancan.create_steering_control(self.packer, CS.CP.carFingerprint, apply_steer, frame, steer_on))
 
     return can_sends
