@@ -15,7 +15,7 @@ def get_powertrain_can_parser(CP):
     ("DOOR_OPEN_FL", "Doors", 1),
     ("DOOR_OPEN_RR", "Doors", 1),
     ("DOOR_OPEN_RL", "Doors", 1),
-    ("STEER_TORQUE", "STEER_TORQUE", 0),
+    ("STEERING_TOURQUE", "STEER_TORQUE", 0),
     ("Steering_Angle", "SteeringWheel", 0),
   ]
 
