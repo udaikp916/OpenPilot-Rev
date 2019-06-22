@@ -15,7 +15,7 @@ def get_powertrain_can_parser(CP):
     ("DOOR_OPEN_FL", "Doors", 1),
     ("DOOR_OPEN_RR", "Doors", 1),
     ("DOOR_OPEN_RL", "Doors", 1),
-    ("STEER_TORQUE", "STEER_TORQUE", 0),
+    ("STEERING_TOURQUE", "STEER_TORQUE", 0),
     ("Steering_Angle", "SteeringWheel", 0),
   ]
 
@@ -93,12 +93,12 @@ class CarState(object):
     self.standstill = self.v_ego_raw < 0.01
     self.prev_left_blinker_on = self.left_blinker_on
     self.prev_right_blinker_on = self.right_blinker_on
-    self.left_blinker_on = False
-    self.right_blinker_on = False
+    self.left_blinker_on = cp.vl["Lights"]['LEFT_BLINKER']
+    self.right_blinker_on = cp.vl["Lights"]['RIGHT_BLINKER']
     self.seatbelt_unlatched = False
-    self.steer_torque_driver = cp.vl["STEER_TORQUE"]['STEER_TORQUE']
-    self.acc_active = cp.vl["ProPilot"]['CRUISE_ACTIVATED']
-    self.main_on = cp.vl["ProPilot"]['CRUISE_ON']
+    self.steer_torque_driver = cp.vl["STEER_TORQUE"]['STEERING_TOURQUE']
+    self.acc_active = cp_cam.vl["ProPilot"]['CRUISE_ACTIVATED']
+    self.main_on = cp_cam.vl["ProPilot"]['CRUISE_ON']
     self.steer_override = abs(self.steer_torque_driver) > 2
     self.angle_steers = cp.vl["SteeringWheel"]['Steering_Angle']
     self.door_open = any([cp.vl["Doors"]['DOOR_OPEN_RR'],
