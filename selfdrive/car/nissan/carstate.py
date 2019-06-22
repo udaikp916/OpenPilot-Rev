@@ -1,4 +1,3 @@
-import numpy as np
 from common.kalman.simple_kalman import KF1D
 from selfdrive.config import Conversions as CV
 from selfdrive.can.parser import CANParser
@@ -7,6 +6,7 @@ from selfdrive.car.nissan.values import DBC
 def get_powertrain_can_parser(CP):
   # this function generates lists for signal, messages and initial values
   signals = [
+    # sig_name, sig_address, default
     ("FL", "WheelspeedFront", 0),
     ("FR", "WheelspeedFront", 0),
     ("RL", "WheelspeedRear", 0),
@@ -38,7 +38,7 @@ def get_camera_can_parser(CP):
   checks = [
   ]
 
-  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1)
+  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 1, timeout=100)
 
 class CarState(object):
   def __init__(self, CP):
@@ -46,7 +46,13 @@ class CarState(object):
     self.CP = CP
 
     self.car_fingerprint = CP.carFingerprint
+    self.left_blinker_on = False
+    self.prev_left_blinker_on = False
+    self.right_blinker_on = False
+    self.prev_right_blinker_on = False
     self.steer_torque_driver = 0
+    self.steer_not_allowed = False
+    self.main_on = False
 
     # vEgo kalman filter
     dt = 0.01
@@ -72,12 +78,12 @@ class CarState(object):
     self.v_wheel_rl = cp.vl["WheelspeedRear"]['RL'] * CV.KPH_TO_MS
     self.v_wheel_rr = cp.vl["WheelspeedRear"]['RR'] * CV.KPH_TO_MS
 
-    self.v_cruise_pcm = self.v_ego
+    self.v_cruise_pcm = 0
 
     v_wheel = (self.v_wheel_fl + self.v_wheel_fr + self.v_wheel_rl + self.v_wheel_rr) / 4.
-    # Kalman filter, even though Hyundai raw wheel speed is heaviliy filtered by default
+    # Kalman filter
     if abs(v_wheel - self.v_ego) > 2.0:  # Prevent large accelerations when car starts at non zero speed
-      self.v_ego_kf.x = np.matrix([[v_wheel], [0.0]])
+      self.v_ego_kf.x = [[v_wheel], [0.0]]
 
     self.v_ego_raw = v_wheel
     v_ego_x = self.v_ego_kf.update(v_wheel)
@@ -85,11 +91,11 @@ class CarState(object):
     self.v_ego = float(v_ego_x[0])
     self.a_ego = float(v_ego_x[1])
     self.standstill = self.v_ego_raw < 0.01
-    self.left_blinker_on = 0
-    self.right_blinker_on = 0
     self.prev_left_blinker_on = self.left_blinker_on
     self.prev_right_blinker_on = self.right_blinker_on
-    self.seatbelt_unlatched = 0
+    self.left_blinker_on = False
+    self.right_blinker_on = False
+    self.seatbelt_unlatched = False
     self.steer_torque_driver = cp.vl["STEER_TORQUE"]['STEER_TORQUE']
     self.acc_active = cp.vl["ProPilot"]['CRUISE_ACTIVATED']
     self.main_on = cp.vl["ProPilot"]['CRUISE_ON']
@@ -99,4 +105,3 @@ class CarState(object):
       cp.vl["Doors"]['DOOR_OPEN_RL'],
       cp.vl["Doors"]['DOOR_OPEN_FR'],
       cp.vl["Doors"]['DOOR_OPEN_FL']])
-
