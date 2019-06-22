@@ -125,5 +125,4 @@ const safety_hooks nissan_hooks = {
   .tx_lin = nooutput_tx_lin_hook,
   .ignition = default_ign_hook,
   .fwd = nissan_fwd_hook,
-  .relay = alloutput_relay_hook,
 };
