@@ -17,6 +17,8 @@ def get_powertrain_can_parser(CP):
     ("DOOR_OPEN_RL", "Doors", 1),
     ("STEERING_TOURQUE", "STEER_TORQUE", 0),
     ("Steering_Angle", "SteeringWheel", 0),
+    ("RIGHT_BLINKER", "Lights", 0),
+    ("LEFT_BLINKER", "Lights", 0),
   ]
 
   checks = [
