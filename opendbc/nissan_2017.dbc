@@ -61,7 +61,7 @@ BO_ 460 Maybe_Brake_Related: 8 XXX
 BO_ 2 SteeringWheel: 8 XXX
  SG_ Steering_RateChange : 23|8@0+ (1,0) [0|255] "" XXX
  SG_ Always_07 : 31|8@0+ (1,0) [0|255] "" XXX
- SG_ Steering_Angle : 0|16@1- (0.125,0) [0|65535] "" XXX
+ SG_ Steering_Angle : 0|16@1- (-0.125,0) [0|65535] "" XXX
 
 BO_ 384 Maybe_PowerInfo: 8 XXX
  SG_ Unknown_Timer_PowerInfo : 48|4@1+ (1,0) [0|15] "" XXX
@@ -178,4 +178,3 @@ BO_ 438 ProPilot: 8 XXX
  SG_ CRUISE_ON : 36|1@0+ (1,0) [0|255] "" XXX
  SG_ CRUISE_ACTIVATED : 38|1@0+ (1,0) [0|3] "" XXX
  SG_ STEER_STATUS : 51|1@1+ (1,0) [0|3] "" XXX
- 
