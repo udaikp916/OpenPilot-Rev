@@ -18,5 +18,6 @@ def create_steering_control(packer, car_fingerprint, apply_steer, frame, steer_o
     dat = packer.make_can_msg("LKAS", 0, values)[2]
 
     values["CRC"] = nissan_checksum(dat[:14])
+    print(dat)
 
   return packer.make_can_msg("LKAS", 0, values)
