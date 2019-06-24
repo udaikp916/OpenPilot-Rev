@@ -75,8 +75,8 @@ BO_ 1107 Lights: 8 XXX
 
 BO_ 666 WheelspeedFront: 8 XXX
  SG_ _FL_WHEELSPEED : 39|16@0+ (0.01014,0) [0|65535] "" XXX
- SG_ FR : 7|16@0+ (1,0) [0|65535] "KPH" XXX
- SG_ FL : 23|16@0+ (1,0) [0|65535] "KPH" XXX
+ SG_ FR : 7|16@0+ (0.00555,0) [0|65535] "KPH" XXX
+ SG_ FL : 23|16@0+ (0.00555,0) [0|65535] "KPH" XXX
 
 BO_ 398 NEW_MSG_2: 8 XXX
 
