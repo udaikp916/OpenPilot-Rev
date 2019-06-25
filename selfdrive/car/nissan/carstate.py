@@ -92,7 +92,7 @@ class CarState(object):
     self.lkas['SET_X80'] = cp.vl["LKAS"]['SET_X80']
     self.lkas['Counter'] = cp.vl["LKAS"]['Counter']
     self.lkas['LKA_Active'] = cp.vl["LKAS"]['LKA_Active']
-    
+    print(self.lkas)
 
     self.v_wheel_fl = cp.vl["WheelspeedFront"]['FL'] * CV.KPH_TO_MS
     self.v_wheel_fr = cp.vl["WheelspeedFront"]['FR'] * CV.KPH_TO_MS
