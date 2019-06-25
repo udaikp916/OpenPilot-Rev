@@ -27,11 +27,12 @@ class CarController(object):
     # Send CAN commands.
     can_sends = []
 
-    ### STEER ###
-    steer_on = CS.steer_on
-    apply_steer = actuators.steer
-    lkas = CS.lkas
+    if (frame % 2) == 0:
+      ### STEER ###
+      steer_on = CS.steer_on
+      apply_steer = actuators.steer
+      lkas = CS.lkas
 
-    can_sends.append(nissancan.create_steering_control(self.packer, CS.CP.carFingerprint, apply_steer, frame, steer_on, lkas))
+      can_sends.append(nissancan.create_steering_control(self.packer, CS.CP.carFingerprint, apply_steer, frame, steer_on, lkas))
 
     return can_sends
