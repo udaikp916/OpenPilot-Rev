@@ -96,9 +96,9 @@ int safety_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   }
   // forward CAN 2 > 0
   if (bus_num == 2) {
-    if (addr == 0x169) {
-      return -1;
-    }
+    // if (addr == 0x169) {
+    //   return -1;
+    // }
     return 0; // CAR CAN
   }
   return -1;
