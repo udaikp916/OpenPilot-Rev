@@ -19,6 +19,12 @@ def get_powertrain_can_parser(CP):
     ("Steering_Angle", "SteeringWheel", 0),
     ("RIGHT_BLINKER", "Lights", 0),
     ("LEFT_BLINKER", "Lights", 0),
+    ("Des_Angle", "LKAS", 0),
+    ("SET_0x80_2", "LKAS", 0),
+    ("NEW_SIGNAL_4", "LKAS", 0),
+    ("SET_X80", "LKAS", 0),
+    ("Counter", "LKAS", 0),
+    ("LKA_Active", "LKAS", 0),
   ]
 
   checks = [
@@ -56,6 +62,9 @@ class CarState(object):
     self.steer_not_allowed = False
     self.main_on = False
 
+    # Test code, troubleshooting ProPilot
+    self.lkas = {}
+
     # vEgo kalman filter
     dt = 0.01
     self.v_ego_kf = KF1D(x0=[[0.], [0.]],
@@ -74,6 +83,16 @@ class CarState(object):
     self.user_gas_pressed = self.pedal_gas > 0
     self.brake_pressed = self.brake_pressure > 0
     self.brake_lights = bool(self.brake_pressed)
+
+
+    # Test code, troubleshooting ProPilot
+    self.lkas['Des_Angle'] = cp.vl["LKAS"]['Des_Angle']
+    self.lkas['SET_0x80_2'] = cp.vl["LKAS"]['SET_0x80_2']
+    self.lkas['NEW_SIGNAL_4'] = cp.vl["LKAS"]['NEW_SIGNAL_4']
+    self.lkas['SET_X80'] = cp.vl["LKAS"]['SET_X80']
+    self.lkas['Counter'] = cp.vl["LKAS"]['Counter']
+    self.lkas['LKA_Active'] = cp.vl["LKAS"]['LKA_Active']
+    
 
     self.v_wheel_fl = cp.vl["WheelspeedFront"]['FL'] * CV.KPH_TO_MS
     self.v_wheel_fr = cp.vl["WheelspeedFront"]['FR'] * CV.KPH_TO_MS
