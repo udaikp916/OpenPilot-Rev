@@ -7,7 +7,7 @@ def create_steering_control(packer, car_fingerprint, apply_steer, frame, steer_o
   if car_fingerprint == CAR.XTRAIL:
     idx = (frame % 16)
     values = {
-      "Des_Angle": lkas['Des_Angle'],
+      "Des_Angle": apply_steer,
       "SET_0x80_2": lkas['SET_0x80_2'],
       "SET_X80": lkas['SET_X80'],
       "NEW_SIGNAL_4": lkas['NEW_SIGNAL_4'],
