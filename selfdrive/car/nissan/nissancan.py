@@ -11,7 +11,7 @@ def create_steering_control(packer, car_fingerprint, apply_steer, frame, steer_o
       "SET_0x80_2": lkas['SET_0x80_2'],
       "SET_X80": lkas['SET_X80'],
       "NEW_SIGNAL_4": lkas['NEW_SIGNAL_4'],
-      "Counter": lkas['Counter'],
+      "Counter": idx,
       "LKA_Active": lkas['LKA_Active'],
     }
 
