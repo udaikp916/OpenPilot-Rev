@@ -19,12 +19,6 @@ def get_powertrain_can_parser(CP):
     ("Steering_Angle", "SteeringWheel", 0),
     ("RIGHT_BLINKER", "Lights", 0),
     ("LEFT_BLINKER", "Lights", 0),
-    ("Des_Angle", "LKAS", 0),
-    ("SET_0x80_2", "LKAS", 0),
-    ("NEW_SIGNAL_4", "LKAS", 0),
-    ("SET_X80", "LKAS", 0),
-    ("Counter", "LKAS", 0),
-    ("LKA_Active", "LKAS", 0),
   ]
 
   checks = [
@@ -35,6 +29,25 @@ def get_powertrain_can_parser(CP):
   ]
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 0, timeout=100)
+
+
+def get_adas_can_parser(CP):
+  # this function generates lists for signal, messages and initial values
+  signals = [
+    # sig_name, sig_address, default
+    ("Des_Angle", "LKAS", 0),
+    ("SET_0x80_2", "LKAS", 0),
+    ("NEW_SIGNAL_4", "LKAS", 0),
+    ("SET_X80", "LKAS", 0),
+    ("Counter", "LKAS", 0),
+    ("LKA_Active", "LKAS", 0),
+  ]
+
+  checks = [
+    # sig_address, frequency
+  ]
+
+  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2, timeout=100)
 
 def get_camera_can_parser(CP):
   signals = [
@@ -73,10 +86,11 @@ class CarState(object):
                          K=[[0.12287673], [0.29666309]])
     self.v_ego = 0.
 
-  def update(self, cp, cp_cam):
+  def update(self, cp, cp_adas, cp_cam):
 
     self.can_valid = cp.can_valid
     self.cam_can_valid = cp_cam.can_valid
+    self.adas_can_valid = cp_adas.can_valid
 
     self.pedal_gas = 0
     self.brake_pressure = 0
@@ -86,12 +100,12 @@ class CarState(object):
 
 
     # Test code, troubleshooting ProPilot
-    self.lkas['Des_Angle'] = cp.vl["LKAS"]['Des_Angle']
-    self.lkas['SET_0x80_2'] = cp.vl["LKAS"]['SET_0x80_2']
-    self.lkas['NEW_SIGNAL_4'] = cp.vl["LKAS"]['NEW_SIGNAL_4']
-    self.lkas['SET_X80'] = cp.vl["LKAS"]['SET_X80']
-    self.lkas['Counter'] = cp.vl["LKAS"]['Counter']
-    self.lkas['LKA_Active'] = cp.vl["LKAS"]['LKA_Active']
+    self.lkas['Des_Angle'] = cp_adas.vl["LKAS"]['Des_Angle']
+    self.lkas['SET_0x80_2'] = cp_adas.vl["LKAS"]['SET_0x80_2']
+    self.lkas['NEW_SIGNAL_4'] = cp_adas.vl["LKAS"]['NEW_SIGNAL_4']
+    self.lkas['SET_X80'] = cp_adas.vl["LKAS"]['SET_X80']
+    self.lkas['Counter'] = cp_adas.vl["LKAS"]['Counter']
+    self.lkas['LKA_Active'] = cp_adas.vl["LKAS"]['LKA_Active']
     print(self.lkas)
 
     self.v_wheel_fl = cp.vl["WheelspeedFront"]['FL'] * CV.KPH_TO_MS
