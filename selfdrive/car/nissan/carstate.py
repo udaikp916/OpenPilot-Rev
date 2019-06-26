@@ -17,6 +17,8 @@ def get_powertrain_can_parser(CP):
     ("DOOR_OPEN_RL", "Doors", 1),
     ("STEERING_TOURQUE", "STEER_TORQUE", 0),
     ("Steering_Angle", "SteeringWheel", 0),
+    ("RIGHT_BLINKER", "Lights", 0),
+    ("LEFT_BLINKER", "Lights", 0),
   ]
 
   checks = [
@@ -27,6 +29,25 @@ def get_powertrain_can_parser(CP):
   ]
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 0, timeout=100)
+
+
+def get_adas_can_parser(CP):
+  # this function generates lists for signal, messages and initial values
+  signals = [
+    # sig_name, sig_address, default
+    ("Des_Angle", "LKAS", 0),
+    ("SET_0x80_2", "LKAS", 0),
+    ("NEW_SIGNAL_4", "LKAS", 0),
+    ("SET_X80", "LKAS", 0),
+    ("Counter", "LKAS", 0),
+    ("LKA_Active", "LKAS", 0),
+  ]
+
+  checks = [
+    # sig_address, frequency
+  ]
+
+  return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2, timeout=100)
 
 def get_camera_can_parser(CP):
   signals = [
@@ -54,6 +75,9 @@ class CarState(object):
     self.steer_not_allowed = False
     self.main_on = False
 
+    # Test code, troubleshooting ProPilot
+    self.lkas = {}
+
     # vEgo kalman filter
     dt = 0.01
     self.v_ego_kf = KF1D(x0=[[0.], [0.]],
@@ -62,16 +86,26 @@ class CarState(object):
                          K=[[0.12287673], [0.29666309]])
     self.v_ego = 0.
 
-  def update(self, cp, cp_cam):
+  def update(self, cp, cp_adas, cp_cam):
 
     self.can_valid = cp.can_valid
     self.cam_can_valid = cp_cam.can_valid
+    self.adas_can_valid = cp_adas.can_valid
 
     self.pedal_gas = 0
     self.brake_pressure = 0
     self.user_gas_pressed = self.pedal_gas > 0
     self.brake_pressed = self.brake_pressure > 0
     self.brake_lights = bool(self.brake_pressed)
+
+
+    # Test code, troubleshooting ProPilot
+    self.lkas['Des_Angle'] = cp_adas.vl["LKAS"]['Des_Angle']
+    self.lkas['SET_0x80_2'] = cp_adas.vl["LKAS"]['SET_0x80_2']
+    self.lkas['NEW_SIGNAL_4'] = cp_adas.vl["LKAS"]['NEW_SIGNAL_4']
+    self.lkas['SET_X80'] = cp_adas.vl["LKAS"]['SET_X80']
+    self.lkas['Counter'] = cp_adas.vl["LKAS"]['Counter']
+    self.lkas['LKA_Active'] = cp_adas.vl["LKAS"]['LKA_Active']
 
     self.v_wheel_fl = cp.vl["WheelspeedFront"]['FL'] * CV.KPH_TO_MS
     self.v_wheel_fr = cp.vl["WheelspeedFront"]['FR'] * CV.KPH_TO_MS
@@ -93,12 +127,12 @@ class CarState(object):
     self.standstill = self.v_ego_raw < 0.01
     self.prev_left_blinker_on = self.left_blinker_on
     self.prev_right_blinker_on = self.right_blinker_on
-    self.left_blinker_on = cp.vl["Lights"]['LEFT_BLINKER']
-    self.right_blinker_on = cp.vl["Lights"]['RIGHT_BLINKER']
+    self.left_blinker_on = cp.vl["Lights"]['LEFT_BLINKER'] == 1
+    self.right_blinker_on = cp.vl["Lights"]['RIGHT_BLINKER'] == 1
     self.seatbelt_unlatched = False
     self.steer_torque_driver = cp.vl["STEER_TORQUE"]['STEERING_TOURQUE']
-    self.acc_active = True #cp_cam.vl["ProPilot"]['CRUISE_ACTIVATED']
-    self.main_on = True # cp_cam.vl["ProPilot"]['CRUISE_ON']
+    self.acc_active = cp_cam.vl["ProPilot"]['CRUISE_ACTIVATED']
+    self.main_on = cp_cam.vl["ProPilot"]['CRUISE_ON']
     self.steer_on = cp_cam.vl["ProPilot"]['CRUISE_ACTIVATED']
     self.steer_override = abs(self.steer_torque_driver) > 2
     self.angle_steers = cp.vl["SteeringWheel"]['Steering_Angle']

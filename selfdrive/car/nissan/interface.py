@@ -5,7 +5,7 @@ from selfdrive.config import Conversions as CV
 from selfdrive.controls.lib.drive_helpers import create_event, EventTypes as ET
 from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.car.nissan.values import CAR
-from selfdrive.car.nissan.carstate import CarState, get_powertrain_can_parser, get_camera_can_parser
+from selfdrive.car.nissan.carstate import CarState, get_powertrain_can_parser, get_adas_can_parser, get_camera_can_parser
 
 
 class CarInterface(object):
@@ -21,6 +21,7 @@ class CarInterface(object):
     self.CS = CarState(CP)
     self.VM = VehicleModel(CP)
     self.pt_cp = get_powertrain_can_parser(CP)
+    self.adas_cp = get_adas_can_parser(CP)
     self.cam_cp = get_camera_can_parser(CP)
 
     self.gas_pressed_prev = False
@@ -115,10 +116,11 @@ class CarInterface(object):
   # returns a car.CarState
   def update(self, c):
     can_rcv_error = not self.pt_cp.update(int(sec_since_boot() * 1e9), True)
+    adas_rcv_error = not self.adas_cp.update(int(sec_since_boot() * 1e9), False)
     cam_rcv_error = not self.cam_cp.update(int(sec_since_boot() * 1e9), False)
-    can_rcv_error = can_rcv_error or cam_rcv_error
+    can_rcv_error = can_rcv_error or cam_rcv_error or adas_rcv_error
 
-    self.CS.update(self.pt_cp, self.cam_cp)
+    self.CS.update(self.pt_cp, self.adas_cp, self.cam_cp)
 
     # create message
     ret = car.CarState.new_message()
