@@ -116,8 +116,8 @@ class CarInterface(object):
   # returns a car.CarState
   def update(self, c):
     can_rcv_error = not self.pt_cp.update(int(sec_since_boot() * 1e9), True)
-    adas_rcv_error = not self.adas_cp.update(int(sec_since_boot() * 1e9), False)
-    cam_rcv_error = not self.cam_cp.update(int(sec_since_boot() * 1e9), False)
+    adas_rcv_error = not self.adas_cp.update(int(sec_since_boot() * 1e9), True)
+    cam_rcv_error = not self.cam_cp.update(int(sec_since_boot() * 1e9), True)
     can_rcv_error = can_rcv_error or cam_rcv_error or adas_rcv_error
 
     self.CS.update(self.pt_cp, self.adas_cp, self.cam_cp)
