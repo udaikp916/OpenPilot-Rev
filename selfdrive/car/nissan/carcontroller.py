@@ -29,7 +29,7 @@ class CarController(object):
 
     ### STEER ###
     steer_on = CS.steer_on
-    apply_steer = actuators.steer * 100
+    apply_steer = actuators.steer * 200
     lkas = CS.lkas
 
     can_sends.append(nissancan.create_steering_control(self.packer, CS.CP.carFingerprint, apply_steer, frame, steer_on, lkas))
