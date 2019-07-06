@@ -2,7 +2,7 @@ const int SUBARU_MAX_STEER = 2047; // 1s
 // real time torque limit to prevent controls spamming
 // the real time limit is 1500/sec
 const int SUBARU_MAX_RT_DELTA = 940;          // max delta torque allowed for real time checks
-const int32_t SUBARU_RT_INTERVAL = 250000;    // 250ms between real time checks
+const uint32_t SUBARU_RT_INTERVAL = 250000;    // 250ms between real time checks
 const int SUBARU_MAX_RATE_UP = 50;
 const int SUBARU_MAX_RATE_DOWN = 70;
 const int SUBARU_DRIVER_TORQUE_ALLOWANCE = 60;
@@ -15,8 +15,8 @@ uint32_t subaru_ts_last = 0;
 struct sample_t subaru_torque_driver;         // last few driver torques measured
 
 static void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
-  int bus_number = (to_push->RDTR >> 4) & 0xFF;
-  uint32_t addr = to_push->RIR >> 21;
+  int bus = GET_BUS(to_push);
+  int addr = GET_ADDR(to_push);
 
   if ((addr == 0x119 || addr == 0x371) && (bus_number == 0)){
     int bit_shift = (addr == 0x119) ? 16 : 29;
@@ -32,7 +32,8 @@ static void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
     int cruise_engaged = (to_push->RDHR >> bit_shift) & 1;
     if (cruise_engaged && !subaru_cruise_engaged_last) {
       controls_allowed = 1;
-    } else if (!cruise_engaged) {
+    }
+    if (!cruise_engaged) {
       controls_allowed = 0;
     }
     subaru_cruise_engaged_last = cruise_engaged;
@@ -40,7 +41,8 @@ static void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 }
 
 static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
-  uint32_t addr = to_send->RIR >> 21;
+  int tx = 1;
+  int addr = GET_ADDR(to_send);
 
   // steer cmd checks
   if (addr == 0x122 || addr == 0x164) {
@@ -88,11 +90,11 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
     }
 
     if (violation) {
-      return false;
+      tx = 0;
     }
 
   }
-  return true;
+  return tx;
 }
 
 static int subaru_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
