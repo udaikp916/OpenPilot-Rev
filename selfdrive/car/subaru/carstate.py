@@ -36,7 +36,7 @@ def get_powertrain_can_parser(CP):
     ("Steering_Torque", 50),
   ]
 
-  if CP.carFingerprint not in (CAR.OUTBACK, CAR.LEGACY):
+  if CP.carFingerprint == CAR.IMPREZA:
     checks += [
       ("BodyInfo", 10),
       ("CruiseControl", 20),
@@ -62,7 +62,7 @@ def get_camera_can_parser(CP):
     ("ES_DashStatus", 10),
   ]
 
-  if CP.carFingerprint not in (CAR.OUTBACK, CAR.LEGACY):
+  if CP.carFingerprint == CAR.IMPREZA:
     signals += [
       ("Counter", "ES_Distance", 0),
       ("Signal1", "ES_Distance", 0),
@@ -117,9 +117,6 @@ class CarState(object):
 
   def update(self, cp, cp_cam):
 
-    self.can_valid = cp.can_valid
-    self.cam_can_valid = cp_cam.can_valid
-
     self.pedal_gas = cp.vl["Throttle"]['Throttle_Pedal']
     self.brake_pressure = cp.vl["Brake_Pedal"]['Brake_Pedal']
     self.user_gas_pressed = self.pedal_gas > 0
@@ -161,8 +158,9 @@ class CarState(object):
       cp.vl["BodyInfo"]['DOOR_OPEN_FR'],
       cp.vl["BodyInfo"]['DOOR_OPEN_FL']])
 
-    if self.car_fingerprint not in (CAR.OUTBACK, CAR.LEGACY):
+    if self.car_fingerprint == CAR.IMPREZA:
       self.v_cruise_pcm = cp_cam.vl["ES_DashStatus"]["Cruise_Set_Speed"] * CV.MPH_TO_KPH
+      self.steer_not_allowed = 0
       self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
       self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
       # 1 = imperial, 6 = metric

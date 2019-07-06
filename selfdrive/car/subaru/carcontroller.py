@@ -1,5 +1,4 @@
 #from common.numpy_fast import clip
-from common.realtime import sec_since_boot
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.subaru.carstate import CarState
 from selfdrive.car.subaru import subarucan
@@ -26,7 +25,6 @@ class CarControllerParams():
 
 class CarController(object):
   def __init__(self, car_fingerprint):
-    self.start_time = sec_since_boot()
     self.lkas_active = False
     self.steer_idx = 0
     self.apply_steer_last = 0
@@ -52,7 +50,6 @@ class CarController(object):
     ### STEER ###
 
     if (frame % P.STEER_STEP) == 0:
-
       final_steer = actuators.steer if enabled else 0.
       apply_steer = int(round(final_steer * P.STEER_MAX))
 
@@ -76,8 +73,7 @@ class CarController(object):
 
       self.apply_steer_last = apply_steer
 
-    if self.car_fingerprint not in (CAR.OUTBACK, CAR.LEGACY):
-
+    if self.car_fingerprint == CAR.IMPREZA:
       if self.es_distance_cnt != CS.es_distance_msg["Counter"]:
         can_sends.append(subarucan.create_es_distance(self.packer, CS.es_distance_msg, pcm_cancel_cmd))
         self.es_distance_cnt = CS.es_distance_msg["Counter"]

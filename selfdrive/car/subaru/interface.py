@@ -6,6 +6,7 @@ from selfdrive.controls.lib.drive_helpers import create_event, EventTypes as ET
 from selfdrive.controls.lib.vehicle_model import VehicleModel
 from selfdrive.car.subaru.values import CAR
 from selfdrive.car.subaru.carstate import CarState, get_powertrain_can_parser, get_camera_can_parser
+from selfdrive.car import STD_CARGO_KG
 
 
 class CarInterface(object):
@@ -13,7 +14,6 @@ class CarInterface(object):
     self.CP = CP
 
     self.frame = 0
-    self.can_invalid_count = 0
     self.acc_active_prev = 0
     self.gas_pressed_prev = False
 
@@ -44,18 +44,17 @@ class CarInterface(object):
     ret.carName = "subaru"
     ret.carFingerprint = candidate
     ret.carVin = vin
-    ret.safetyModel = car.CarParams.SafetyModels.subaru
+    ret.safetyModel = car.CarParams.SafetyModel.subaru
 
     ret.enableCruise = True
     ret.steerLimitAlert = True
 
     ret.enableCamera = True
 
-    std_cargo = 136
     ret.steerRateCost = 0.7
 
-    if candidate in [CAR.IMPREZA, CAR.XV]:
-      ret.mass = 1568 + std_cargo
+    if candidate in [CAR.IMPREZA]:
+      ret.mass = 1568. + STD_CARGO_KG
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
       ret.steerRatio = 15
@@ -68,22 +67,21 @@ class CarInterface(object):
       ret.steerMaxV = [1.]
 
     if candidate in [CAR.OUTBACK]:
-      ret.mass = 1568 + std_cargo
+      ret.mass = 1568 + STD_CARGO_KG
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
-      ret.steerRatio = 20            # learned, 14 stock
-      tire_stiffness_factor = 1
-      ret.steerActuatorDelay = 0.3
-      ret.lateralTuning.init('indi')
-      ret.lateralTuning.indi.innerLoopGain = 3.0
-      ret.lateralTuning.indi.outerLoopGain = 2.3
-      ret.lateralTuning.indi.timeConstant = 1.0
-      ret.lateralTuning.indi.actuatorEffectiveness = 1.5
+      ret.steerRatio = 20           # learned, 14 stock
+      tire_stiffness_factor = 1.0
+      ret.steerActuatorDelay = 0.2
+      ret.steerRateCost = 0.4
+      ret.lateralTuning.pid.kf = 0.00005
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.07, 0.08], [0.035, 0.04]]
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
     if candidate in [CAR.LEGACY]:
-      ret.mass = 1568 + std_cargo
+      ret.mass = 1568 + STD_CARGO_KG
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
       ret.steerRatio = 12.5   #14.5 stock
@@ -97,7 +95,6 @@ class CarInterface(object):
 
     ret.steerControlType = car.CarParams.SteerControlType.torque
     ret.steerRatioRear = 0.
-    # testing tuning
 
     # No long control in subaru
     ret.gasMaxBP = [0.]
@@ -111,11 +108,9 @@ class CarInterface(object):
     ret.longitudinalTuning.kiBP = [0.]
     ret.longitudinalTuning.kiV = [0.]
 
-    # end from gm
-
     # hardcoding honda civic 2016 touring params so they can be used to
     # scale unknown params for other cars
-    mass_civic = 2923./2.205 + std_cargo
+    mass_civic = 2923. * CV.LB_TO_KG + STD_CARGO_KG
     wheelbase_civic = 2.70
     centerToFront_civic = wheelbase_civic * 0.4
     centerToRear_civic = wheelbase_civic - centerToFront_civic
@@ -142,14 +137,15 @@ class CarInterface(object):
 
   # returns a car.CarState
   def update(self, c):
-    can_rcv_error = not self.pt_cp.update(int(sec_since_boot() * 1e9), True)
-    cam_rcv_error = not self.cam_cp.update(int(sec_since_boot() * 1e9), False)
-    can_rcv_error = can_rcv_error or cam_rcv_error
+    can_rcv_valid, _ = self.pt_cp.update(int(sec_since_boot() * 1e9), True)
+    cam_rcv_valid, _ = self.cam_cp.update(int(sec_since_boot() * 1e9), False)
 
     self.CS.update(self.pt_cp, self.cam_cp)
 
     # create message
     ret = car.CarState.new_message()
+
+    ret.canValid = can_rcv_valid and cam_rcv_valid and self.pt_cp.can_valid and self.cam_cp.can_valid
 
     # speeds
     ret.vEgo = self.CS.v_ego
@@ -205,17 +201,10 @@ class CarInterface(object):
 
 
     events = []
-    if not self.CS.can_valid:
-      self.can_invalid_count += 1
-    else:
-      self.can_invalid_count = 0
-
+    
     if self.CS.steer_not_allowed:
       events.append(create_event('steerUnavailable', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE, ET.PERMANENT]))
-
-    if can_rcv_error or self.can_invalid_count >= 5:
-      events.append(create_event('commIssue', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE]))
-
+      
     if ret.seatbeltUnlatched:
       events.append(create_event('seatbeltNotLatched', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
 
