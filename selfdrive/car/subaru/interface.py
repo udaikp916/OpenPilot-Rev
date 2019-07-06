@@ -67,7 +67,7 @@ class CarInterface(object):
       ret.steerMaxV = [1.]
 
     if candidate in [CAR.OUTBACK]:
-      ret.mass = 1568 + std_cargo
+      ret.mass = 1568 + STD_CARGO_KG
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
       ret.steerRatio = 20            # learned, 14 stock
@@ -83,7 +83,7 @@ class CarInterface(object):
       ret.steerMaxV = [1.]
 
     if candidate in [CAR.LEGACY]:
-      ret.mass = 1568 + std_cargo
+      ret.mass = 1568 + STD_CARGO_KG
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
       ret.steerRatio = 12.5   #14.5 stock
