@@ -76,7 +76,7 @@ class CarInterface(object):
       ret.steerRateCost = 0.4
       ret.lateralTuning.pid.kf = 0.00005
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
-      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.07, 0.08], [0.035, 0.04]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.07, 0.2], [0.02, 0.025]]
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
