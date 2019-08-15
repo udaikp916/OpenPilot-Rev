@@ -132,7 +132,7 @@ bool usb_connect() {
   const int result = read_db_value(NULL, "SafetyModelLock", &value_safety_model, &value_safety_model_sz);
 
   ignition_last = 0;
-  unsigned char is_pigeon[1] = {0};
+
   unsigned char fw_ver_buf[64];
   unsigned char serial_buf[16];
   const char *fw_ver;
