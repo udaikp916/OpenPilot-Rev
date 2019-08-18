@@ -29,7 +29,7 @@ static void subaru_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   // enter controls on rising edge of ACC, exit controls on ACC off
   if ((addr == 0x240 || addr == 0x144) && (bus == 0)) {
     int bit_shift = (addr == 0x240) ? 9 : 17;
-    int cruise_engaged = ((GET_BYTES_48(to_push) >> bit_shift) & 1;
+    int cruise_engaged = ((GET_BYTES_48(to_push) >> bit_shift) & 1);
     if (cruise_engaged && !subaru_cruise_engaged_last) {
       controls_allowed = 1;
     }
