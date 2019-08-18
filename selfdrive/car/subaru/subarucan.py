@@ -79,8 +79,22 @@ def create_es_lkas(packer, es_lkas_msg, visual_alert, left_line, right_line):
   return packer.make_can_msg("ES_LKAS_State", 0, values)
 
 def create_door_control(packer):
+
   values = {
     "DOOR_OPEN_FR": 1,
     "_UNKNOWN": 5,
   }
   return packer.make_can_msg("BodyInfo", 2, values)
+
+def create_throttle_control(packer, fake_button, es_accel_msg, checksum, real_button):
+
+  values = copy.copy(es_accel_msg)
+  if fake_button == 4 and real_button == 0:
+    values["Checksum"] = (checksum + 4) % 256
+    values["Button"] = fake_button
+
+    return packer.make_can_msg("ES_CruiseThrottle", 0, values)
+
+  else:
+
+    return packer.make_can_msg("ES_CruiseThrottle", 0, values)

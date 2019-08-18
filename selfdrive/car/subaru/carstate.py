@@ -90,6 +90,26 @@ def get_camera_can_parser(CP):
       ("Signal5", "ES_LKAS_State", 0),
     ]
 
+  if CP.carFingerprint in [CAR.OUTBACK, CAR.LEGACY]:
+    signals += [
+      ("Brake_On", "ES_CruiseThrottle", 0),
+      ("Button", "ES_CruiseThrottle", 0),
+      ("Checksum", "ES_CruiseThrottle", 0),
+      ("CloseDistance", "ES_CruiseThrottle", 0),
+      ("Counter_1", "ES_CruiseThrottle", 0),
+      ("Cruise_Activatedish", "ES_CruiseThrottle", 0),
+      ("DistanceSwap", "ES_CruiseThrottle", 0),
+      ("ES_Error", "ES_CruiseThrottle", 0),
+      ("NEW_SIGNAL_1", "ES_CruiseThrottle", 0),
+      ("NEW_SIGNAL_3_Blank", "ES_CruiseThrottle", 0),
+      ("NEW_SIGNAL_6_Blank", "ES_CruiseThrottle", 0),
+      ("NEW_SIGNAL_9", "ES_CruiseThrottle", 0),
+      ("Standstill", "ES_CruiseThrottle", 0),
+      ("Standstill_2", "ES_CruiseThrottle", 0),
+      ("Throttle_Cruise", "ES_CruiseThrottle", 0),
+      ("Unknown", "ES_CruiseThrottle", 0),
+    ]
+
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2)
 
 
@@ -169,3 +189,8 @@ class CarState(object):
     else:
       self.v_cruise_pcm = cp_cam.vl["ES_DashStatus"]["Cruise_Set_Speed"]
       self.steer_not_allowed = cp.vl["Steering_Torque"]["LKA_Lockout"]
+      self.button = cp_cam.vl["ES_DashStatus"]["Button"]
+      self.brake_hold = cp_cam.vl["ES_DashStatus"]["Standstill"]
+      self.accel_checksum = cp_cam.vl["ES_DashStatus"]["Checksum"]
+      self.es_accel_msg = copy.copy(cp_cam.vl["ES_CruiseThrottle"])
+
