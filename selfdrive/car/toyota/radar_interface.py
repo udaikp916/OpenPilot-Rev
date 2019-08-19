@@ -4,12 +4,12 @@ import time
 from selfdrive.can.parser import CANParser
 from cereal import car
 from common.realtime import sec_since_boot
-from selfdrive.car.toyota.values import NO_DSU_CAR, DBC, TSS2_CAR
+from selfdrive.car.toyota.values import CAR, NO_DSU_CAR, DBC, TSS2_CAR
 
 def _create_radar_can_parser(car_fingerprint):
   dbc_f = DBC[car_fingerprint]['radar']
 
-  if car_fingerprint in TSS2_CAR:
+  if (car_fingerprint in TSS2_CAR) or (car_fingerprint in CAR.CAMRY_TSS2):
     RADAR_A_MSGS = list(range(0x180, 0x190))
     RADAR_B_MSGS = list(range(0x190, 0x1a0))
   else:
