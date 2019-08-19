@@ -36,7 +36,7 @@ class RadarInterface(object):
 
     self.delay = 0.0  # Delay of radar
 
-    if CP.carFingerprint in TSS2_CAR:
+    if (CP.carFingerprint in TSS2_CAR) or (CP.carFingerprint in CAR.CAMRY_TSS2):
       self.RADAR_A_MSGS = list(range(0x180, 0x190))
       self.RADAR_B_MSGS = list(range(0x190, 0x1a0))
     else:
