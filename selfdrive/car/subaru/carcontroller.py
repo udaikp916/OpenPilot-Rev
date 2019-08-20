@@ -32,6 +32,7 @@ class CarController(object):
     self.es_distance_cnt = -1
     self.es_lkas_cnt = -1
     self.counter = 0
+    self.button_last = 0
 
     # Setup detection helper. Routes commands to
     # an appropriate CAN bus number.
@@ -85,18 +86,21 @@ class CarController(object):
     if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY) and pcm_cancel_cmd:
       can_sends.append(subarucan.create_door_control(self.packer))
     
-    # Tap resume button for S&G
+    # button control
     if (frame % 5) == 0 and self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
-      checksum_offset = 0
+      # 1 = main, 2 = set shallow, 3 = set deep, 4 = resume shallow, 5 = resume deep
       standstill = CS.brake_hold
       fake_button = 0 
+        checksum_offset = fake_button
       if CS.brake_hold == 1:
         fake_button = 4
         standstill = 0
-        checksum_offset = (4 - 64)
-      if CS.main_on == 0 and CS.ready == 1:
-        fake_button = 1
-        checksum_offset = 1
+        checksum_offset = (fake_button - 64)
+      if self.button_last != 0:
+        fake_button = CS.button
+        checksum_offset = fake_button
+
+      self.button_last = CS.button
       
       can_sends.append(subarucan.create_throttle_control(self.packer, fake_button, CS.es_accel_msg, CS.accel_checksum, CS.button, standstill, checksum_offset))
         
