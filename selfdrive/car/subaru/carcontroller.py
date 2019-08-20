@@ -90,7 +90,10 @@ class CarController(object):
     if (frame % 5) == 0 and self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
       # 1 = main, 2 = set shallow, 3 = set deep, 4 = resume shallow, 5 = resume deep
       standstill = CS.brake_hold
-      fake_button = 0 
+      fake_button = CS.button 
+      checksum_offset = 0
+      if CS.main_on == 0 and CS.ready == 1:
+        fake_button = 1
         checksum_offset = fake_button
       if CS.brake_hold == 1:
         fake_button = 4
