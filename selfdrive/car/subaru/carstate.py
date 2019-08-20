@@ -189,8 +189,8 @@ class CarState(object):
     else:
       self.v_cruise_pcm = cp_cam.vl["ES_DashStatus"]["Cruise_Set_Speed"]
       self.steer_not_allowed = cp.vl["Steering_Torque"]["LKA_Lockout"]
-      self.button = cp_cam.vl["ES_DashStatus"]["Button"]
-      self.brake_hold = cp_cam.vl["ES_DashStatus"]["Standstill"]
-      self.accel_checksum = cp_cam.vl["ES_DashStatus"]["Checksum"]
+      self.button = cp_cam.vl["ES_CruiseThrottle"]["Button"]
+      self.brake_hold = cp_cam.vl["ES_CruiseThrottle"]["Standstill"]
+      self.accel_checksum = cp_cam.vl["ES_CruiseThrottle"]["Checksum"]
       self.es_accel_msg = copy.copy(cp_cam.vl["ES_CruiseThrottle"])
 

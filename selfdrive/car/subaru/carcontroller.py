@@ -91,6 +91,6 @@ class CarController(object):
         fake_button = 4
       else: 
         fake_button = 0
-      can_sends.append(subarucan.create_throttle_control(self.packer, fake_button, CS.es_accel_msg, CS.accel_checksum, CS.Button))
+      can_sends.append(subarucan.create_throttle_control(self.packer, fake_button, CS.es_accel_msg, CS.accel_checksum, CS.button))
         
     return can_sends
