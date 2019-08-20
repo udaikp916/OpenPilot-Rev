@@ -87,10 +87,17 @@ class CarController(object):
     
     # Tap resume button for S&G
     if (frame % 5) == 0 and self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
+      checksum_offset = 0
+      standstill = CS.brake_hold
+      fake_button = 0 
       if CS.brake_hold == 1:
         fake_button = 4
-      else: 
-        fake_button = 0
-      can_sends.append(subarucan.create_throttle_control(self.packer, fake_button, CS.es_accel_msg, CS.accel_checksum, CS.button))
+        standstill = 0
+        checksum_offset = (4 - 64)
+      if CS.main_on == 0 and CS.ready == 1:
+        fake_button = 1
+        checksum_offset = 1
+      
+      can_sends.append(subarucan.create_throttle_control(self.packer, fake_button, CS.es_accel_msg, CS.accel_checksum, CS.button, standstill, checksum_offset))
         
     return can_sends

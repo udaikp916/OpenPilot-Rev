@@ -108,6 +108,7 @@ def get_camera_can_parser(CP):
       ("Standstill_2", "ES_CruiseThrottle", 0),
       ("Throttle_Cruise", "ES_CruiseThrottle", 0),
       ("Unknown", "ES_CruiseThrottle", 0),
+      ("Not_Ready_Startup", "ES_DashStatus", 0),
     ]
 
   return CANParser(DBC[CP.carFingerprint]['pt'], signals, checks, 2)
@@ -193,4 +194,5 @@ class CarState(object):
       self.brake_hold = cp_cam.vl["ES_CruiseThrottle"]["Standstill"]
       self.accel_checksum = cp_cam.vl["ES_CruiseThrottle"]["Checksum"]
       self.es_accel_msg = copy.copy(cp_cam.vl["ES_CruiseThrottle"])
+      self.ready = not cp_cam.vl["ES_DashStatus"]["Not_Ready_Startup"] 
 

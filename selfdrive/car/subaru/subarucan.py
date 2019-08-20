@@ -86,15 +86,12 @@ def create_door_control(packer):
   }
   return packer.make_can_msg("BodyInfo", 2, values)
 
-def create_throttle_control(packer, fake_button, es_accel_msg, checksum, real_button):
+def create_throttle_control(packer, fake_button, es_accel_msg, checksum, real_button, standstill, checksum_offset):
 
   values = copy.copy(es_accel_msg)
-  if fake_button == 4 and real_button == 0:
-    values["Checksum"] = (checksum + 4) % 256
+  if fake_button != 0 and real_button == 0:
+    values["Checksum"] = (checksum + checksum_offset) % 256
     values["Button"] = fake_button
+    values["Standstill"] = standstill
 
-    return packer.make_can_msg("ES_CruiseThrottle", 0, values)
-
-  else:
-
-    return packer.make_can_msg("ES_CruiseThrottle", 0, values)
+  return packer.make_can_msg("ES_CruiseThrottle", 0, values)
