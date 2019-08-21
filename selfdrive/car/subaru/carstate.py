@@ -193,6 +193,7 @@ class CarState(object):
       self.button = cp_cam.vl["ES_CruiseThrottle"]["Button"]
       self.brake_hold = cp_cam.vl["ES_CruiseThrottle"]["Standstill"]
       self.accel_checksum = cp_cam.vl["ES_CruiseThrottle"]["Checksum"]
+      self.close_distance = cp_cam.vl["ES_CruiseThrottle"]["CloseDistance"]
       self.es_accel_msg = copy.copy(cp_cam.vl["ES_CruiseThrottle"])
       self.ready = not cp_cam.vl["ES_DashStatus"]["Not_Ready_Startup"] 
 

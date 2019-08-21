@@ -95,7 +95,7 @@ class CarController(object):
       if CS.main_on == 0 and CS.ready == 1:
         fake_button = 1
         checksum_offset = fake_button
-      if CS.brake_hold == 1:
+      if CS.brake_hold == 1 and CS.close_distance > 120:
         fake_button = 4
         standstill = 0
         checksum_offset = (fake_button - (64 + 14))
