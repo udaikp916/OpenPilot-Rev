@@ -98,11 +98,10 @@ class CarController(object):
       if CS.brake_hold == 1:
         fake_button = 4
         standstill = 0
-        checksum_offset = (fake_button - 64)
+        checksum_offset = (fake_button - (64 + 14))
       if self.button_last != 0:
         fake_button = CS.button
         checksum_offset = fake_button
-
       self.button_last = CS.button
       
       can_sends.append(subarucan.create_throttle_control(self.packer, fake_button, CS.es_accel_msg, CS.accel_checksum, CS.button, standstill, checksum_offset))

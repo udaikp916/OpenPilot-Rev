@@ -93,5 +93,6 @@ def create_throttle_control(packer, fake_button, es_accel_msg, checksum, real_bu
     values["Checksum"] = (checksum + checksum_offset) % 256
     values["Button"] = fake_button
     values["Standstill"] = standstill
+    values["Standstill_2"] = standstill
 
   return packer.make_can_msg("ES_CruiseThrottle", 0, values)
