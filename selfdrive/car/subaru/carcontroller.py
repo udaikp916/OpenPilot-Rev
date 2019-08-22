@@ -33,6 +33,7 @@ class CarController(object):
     self.es_lkas_cnt = -1
     self.counter = 0
     self.button_last = 0
+    self.sng_reenable = 0
 
     # Setup detection helper. Routes commands to
     # an appropriate CAN bus number.
@@ -82,28 +83,45 @@ class CarController(object):
       if self.es_lkas_cnt != CS.es_lkas_msg["Counter"]:
         can_sends.append(subarucan.create_es_lkas(self.packer, CS.es_lkas_msg, visual_alert, left_line, right_line))
         self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
-
-    if self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY) and pcm_cancel_cmd:
-      can_sends.append(subarucan.create_door_control(self.packer))
     
     # button control
     if (frame % 5) == 0 and self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
       # 1 = main, 2 = set shallow, 3 = set deep, 4 = resume shallow, 5 = resume deep
-      standstill = CS.brake_hold
-      fake_button = CS.button 
-      checksum_offset = 0
+      self.standstill = CS.brake_hold
+      self.fake_button = CS.button 
+      self.checksum_offset = 0
+
+      # engage ACC after cancel for stop and go
+      if self.sng_reenable and not enabled:
+        self.fake_button = 4
+        self.checksum_offset = self.fake_button  
+
+      # stop attempting engage if ACC is has engaged   
+      if self.sng_reenable and enabled:
+        self.sng_reenable = False
+
+      # always on pre-enable
       if CS.main_on == 0 and CS.ready == 1:
-        fake_button = 1
-        checksum_offset = fake_button
+        self.fake_button = 1
+        self.checksum_offset = self.fake_button
+
+      # cancel ACC for to remove standstill
       if CS.brake_hold == 1 and CS.close_distance > 120:
-        fake_button = 4
-        standstill = 0
-        checksum_offset = (fake_button - (64 + 14))
-      if self.button_last != 0:
-        fake_button = CS.button
-        checksum_offset = fake_button
-      self.button_last = CS.button
-      
-      can_sends.append(subarucan.create_throttle_control(self.packer, fake_button, CS.es_accel_msg, CS.accel_checksum, CS.button, standstill, checksum_offset))
+        self.fake_button = 1
+        self.checksum_offset = (self.fake_button)
+        self.sng_reenable = True
         
+      # unstick previous mocked button press
+      if self.button_last != 0:
+        self.fake_button = CS.button
+        self.checksum_offset = self.fake_button
+      self.button_last = CS.button
+
+      # disengage ACC when OP is disengaged
+      if pcm_cancel_cmd:
+        self.fake_button = 1
+        self.checksum_offset = self.fake_button  
+      
+      can_sends.append(subarucan.create_es_throttle_control(self.packer, self.fake_button, CS.es_accel_msg, CS.accel_checksum, CS.button, self.standstill, self.checksum_offset))
+
     return can_sends

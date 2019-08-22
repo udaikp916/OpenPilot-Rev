@@ -18,7 +18,6 @@ def get_powertrain_can_parser(CP):
     ("LEFT_BLINKER", "Dashlights", 0),
     ("RIGHT_BLINKER", "Dashlights", 0),
     ("SEATBELT_FL", "Dashlights", 0),
-
     ("FL", "Wheel_Speeds", 0),
     ("FR", "Wheel_Speeds", 0),
     ("RL", "Wheel_Speeds", 0),
@@ -43,10 +42,11 @@ def get_powertrain_can_parser(CP):
       ("Units", "Dash_State", 1),
     ]
 
-  else:
+  if CP.carFingerprint in [CAR.OUTBACK, CAR.LEGACY]:
     signals += [
       ("LKA_Lockout", "Steering_Torque", 0),
     ]
+
     checks += [
       ("CruiseControl", 50),
     ]
@@ -187,7 +187,8 @@ class CarState(object):
       # 1 = imperial, 6 = metric
       if cp.vl["Dash_State"]['Units'] == 1:
         self.v_cruise_pcm *= CV.MPH_TO_KPH     
-    else:
+
+    if self.car_fingerprint in [CAR.OUTBACK, CAR.LEGACY]:
       self.v_cruise_pcm = cp_cam.vl["ES_DashStatus"]["Cruise_Set_Speed"]
       self.steer_not_allowed = cp.vl["Steering_Torque"]["LKA_Lockout"]
       self.button = cp_cam.vl["ES_CruiseThrottle"]["Button"]
@@ -196,4 +197,3 @@ class CarState(object):
       self.close_distance = cp_cam.vl["ES_CruiseThrottle"]["CloseDistance"]
       self.es_accel_msg = copy.copy(cp_cam.vl["ES_CruiseThrottle"])
       self.ready = not cp_cam.vl["ES_DashStatus"]["Not_Ready_Startup"] 
-
