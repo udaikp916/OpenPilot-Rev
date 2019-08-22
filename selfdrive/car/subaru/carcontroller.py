@@ -87,7 +87,6 @@ class CarController(object):
     # button control
     if (frame % 5) == 0 and self.car_fingerprint in (CAR.OUTBACK, CAR.LEGACY):
       # 1 = main, 2 = set shallow, 3 = set deep, 4 = resume shallow, 5 = resume deep
-      self.standstill = CS.brake_hold
       self.fake_button = CS.button 
       self.checksum_offset = 0
 
@@ -122,6 +121,6 @@ class CarController(object):
         self.fake_button = 1
         self.checksum_offset = self.fake_button  
       
-      can_sends.append(subarucan.create_es_throttle_control(self.packer, self.fake_button, CS.es_accel_msg, CS.accel_checksum, CS.button, self.standstill, self.checksum_offset))
+      can_sends.append(subarucan.create_es_throttle_control(self.packer, self.fake_button, CS.button, self.checksum_offset))
 
     return can_sends
