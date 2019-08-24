@@ -121,6 +121,6 @@ class CarController(object):
         self.fake_button = 1
         self.checksum_offset = self.fake_button  
       
-      can_sends.append(subarucan.create_es_throttle_control(self.packer, self.fake_button, CS.accel_checksum, CS.button, self.checksum_offset))
+      can_sends.append(subarucan.create_es_throttle_control(self.packer, self.fake_button, CS.accel_checksum, CS.button, self.checksum_offset, CS.es_accel_msg))
 
     return can_sends
