@@ -96,10 +96,11 @@ class CarController(object):
         self.checksum_offset = self.fake_button
 
       # engage ACC after cancel for stop and go
-      if self.sng_reenable and not enabled:
+      if self.sng_reenable and not enabled and not CS.standstill:
         self.fake_button = 4
         self.checksum_offset = self.fake_button  
-      else:
+
+      if self.sng_reenable and enabled and not CS.standstill:
         self.sng_reenable = False
 
       # always on pre-enable
@@ -110,7 +111,7 @@ class CarController(object):
       # cancel ACC for to remove brake hold, not using standstill bit from eyesight as it is sticky
       if CS.standstill and CS.close_distance > 95 and enabled:
         self.fake_button = 1
-        self.checksum_offset = (self.fake_button)
+        self.checksum_offset = self.fake_button
         self.sng_reenable = True
         
       # unstick previous mocked button press
