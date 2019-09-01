@@ -3,10 +3,6 @@ const int SUBARU_MAX_STEER = 2047; // 1s
 // the real time limit is 1500/sec
 const int SUBARU_MAX_RT_DELTA = 940;          // max delta torque allowed for real time checks
 const uint32_t SUBARU_RT_INTERVAL = 250000;    // 250ms between real time checks
-const int SUBARU_MAX_RATE_UP = 50;
-const int SUBARU_MAX_RATE_DOWN = 70;
-const int SUBARU_DRIVER_TORQUE_ALLOWANCE = 60;
-const int SUBARU_DRIVER_TORQUE_FACTOR = 10;
 
 int subaru_cruise_engaged_last = 0;
 int subaru_rt_torque_last = 0;
@@ -51,7 +47,18 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
     int violation = 0;
     uint32_t ts = TIM2->CNT;
     desired_torque = to_signed(desired_torque, 13);
-
+    if (addr == 0x122) {
+      const int SUBARU_MAX_RATE_UP = 50;
+      const int SUBARU_MAX_RATE_DOWN = 70;
+      const int SUBARU_DRIVER_TORQUE_ALLOWANCE = 60;
+      const int SUBARU_DRIVER_TORQUE_FACTOR = 10;
+    }
+    if (addr == 0x164) {
+      const int SUBARU_MAX_RATE_UP = 75;
+      const int SUBARU_MAX_RATE_DOWN = 75;
+      const int SUBARU_DRIVER_TORQUE_ALLOWANCE = 400;
+      const int SUBARU_DRIVER_TORQUE_FACTOR = 1;
+    }
     if (controls_allowed) {
 
       // *** global torque limit check ***
