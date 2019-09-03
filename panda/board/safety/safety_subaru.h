@@ -44,6 +44,13 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   int tx = 1;
   int addr = GET_ADDR(to_send);
 
+  if (addr == 0x164) {
+    SUBARU_MAX_RATE_UP = 75;
+    SUBARU_MAX_RATE_DOWN = 75;
+    SUBARU_DRIVER_TORQUE_ALLOWANCE = 400;
+    SUBARU_DRIVER_TORQUE_FACTOR = 1;
+  }
+
   // steer cmd checks
   if ((addr == 0x122) || (addr == 0x164)) {
     int bit_shift = (addr == 0x122) ? 16 : 8;
@@ -51,12 +58,6 @@ static int subaru_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
     int violation = 0;
     uint32_t ts = TIM2->CNT;
     desired_torque = to_signed(desired_torque, 13);
-    if (addr == 0x164) {
-      SUBARU_MAX_RATE_UP = 75;
-      SUBARU_MAX_RATE_DOWN = 75;
-      SUBARU_DRIVER_TORQUE_ALLOWANCE = 400;
-      SUBARU_DRIVER_TORQUE_FACTOR = 1;
-    }
     if (controls_allowed) {
 
       // *** global torque limit check ***
