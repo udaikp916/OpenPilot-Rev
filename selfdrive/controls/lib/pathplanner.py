@@ -66,12 +66,12 @@ class PathPlanner(object):
 
     # TODO: Check for active, override, and saturation
     if active and angle_steers - angle_offset > 3.:
-      self.curvature_offset_i += self.LP.d_poly[3] / (60.0 * 20.0)
+      self.curvature_offset_i -= self.LP.d_poly[3] / (60.0 * 20.0)
       #self.curvature_offset_i = clip(self.curvature_offset_i, -0.5,  0.5)
       #self.LP.d_poly[3] += self.curvature_offset_i
       pickle.dump( self.curvature_offset_i, open( "/data/curvature.p", "wb" ) )
     elif active and angle_steers - angle_offset < -3.:
-      self.curvature_offset_i -= self.LP.d_poly[3] / (60.0 * 20.0)
+      self.curvature_offset_i += self.LP.d_poly[3] / (60.0 * 20.0)
       pickle.dump( self.curvature_offset_i, open( "/data/curvature.p", "wb" ) )
     # account for actuation delay
     self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, CP.steerActuatorDelay)
