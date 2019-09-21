@@ -2,7 +2,7 @@ import os
 import math
 import numpy as np
 
-# from common.numpy_fast import clip
+from common.numpy_fast import clip
 from common.realtime import sec_since_boot
 from selfdrive.swaglog import cloudlog
 from selfdrive.controls.lib.lateral_mpc import libmpc_py
@@ -29,6 +29,7 @@ class PathPlanner(object):
 
     self.setup_mpc(CP.steerRateCost)
     self.solution_invalid_cnt = 0
+    self.frame = 0
     if os.path.exists('/data/curvature.p'):
         self.curvature_offset_i = pickle.load( open( "/data/curvature.p", "rb" ) )
     else:
@@ -67,12 +68,19 @@ class PathPlanner(object):
     # TODO: Check for active, override, and saturation
     if active and angle_steers - angle_offset > 3.:
       self.curvature_offset_i -= self.LP.d_poly[3] / (60.0 * 20.0)
-      #self.curvature_offset_i = clip(self.curvature_offset_i, -0.5,  0.5)
+      self.curvature_offset_i = clip(self.curvature_offset_i, -0.5,  0.5)
       #self.LP.d_poly[3] += self.curvature_offset_i
-      pickle.dump( self.curvature_offset_i, open( "/data/curvature.p", "wb" ) )
+      self.frame += 1
+      if self.frame == 20:
+          pickle.dump( self.curvature_offset_i, open( "/data/curvature.p", "wb" ) )
+          self.frame = 0
     elif active and angle_steers - angle_offset < -3.:
       self.curvature_offset_i += self.LP.d_poly[3] / (60.0 * 20.0)
-      pickle.dump( self.curvature_offset_i, open( "/data/curvature.p", "wb" ) )
+      self.curvature_offset_i = clip(self.curvature_offset_i, -0.5,  0.5)
+      self.frame += 1
+      if self.frame == 20:
+          pickle.dump( self.curvature_offset_i, open( "/data/curvature.p", "wb" ) )
+          self.frame = 0
     # account for actuation delay
     self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, CP.steerActuatorDelay)
 
