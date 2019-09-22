@@ -66,10 +66,10 @@ class PathPlanner(object):
     curvature_factor = VM.curvature_factor(v_ego) + self.curvature_offset_i
 
     # TODO: Check for active, override, and saturation
-    if active and angle_steers - angle_offset > 0.5.:
+    if active and angle_steers - angle_offset > 0.5:
       self.curvature_offset_i -= self.LP.d_poly[3] / 12000
       #self.LP.d_poly[3] += self.curvature_offset_i
-    elif active and angle_steers - angle_offset < -0.5.:
+    elif active and angle_steers - angle_offset < -0.5:
       self.curvature_offset_i += self.LP.d_poly[3] / 12000
 
     self.curvature_offset_i = clip(self.curvature_offset_i, -0.3, 0.3)
