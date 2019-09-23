@@ -69,7 +69,7 @@ def get_can_parser(CP):
     signals.append(("LOW_SPEED_LOCKOUT", "PCM_CRUISE_2", 0))
     checks.append(("PCM_CRUISE_2", 33))
 
-  if True:
+  if CP.carFingerprint in NO_DSU_CAR:
     signals += [("STEER_ANGLE", "STEER_TORQUE_SENSOR", 0)]
 
   if CP.carFingerprint == CAR.PRIUS:
