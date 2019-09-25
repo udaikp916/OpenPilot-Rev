@@ -165,7 +165,7 @@ class CarInterface(object):
     ret.stoppingControl = True
     ret.startAccel = 0.8
 
-    ret.steerActuatorDelay = 1.0  # Default delay, not measured yet
+    ret.steerActuatorDelay = 0.1  # Default delay, not measured yet
     ret.steerRateCost = 1.0
     ret.steerControlType = car.CarParams.SteerControlType.torque
 
