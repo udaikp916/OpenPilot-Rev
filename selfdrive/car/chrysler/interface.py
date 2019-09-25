@@ -59,13 +59,13 @@ class CarInterface(object):
     ret.lateralTuning.pid.kpBP, ret.lateralTuning.pid.kiBP = [[9., 20.], [9., 20.]]
     ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.15,0.30], [0.03,0.05]]
     ret.lateralTuning.pid.kf = 0.00006   # full torque for 10 deg at 80mph means 0.00007818594
-    ret.steerActuatorDelay = 1.0
+    ret.steerActuatorDelay = 0.1
     ret.steerRateCost = 0.7
 
     if candidate in (CAR.JEEP_CHEROKEE, CAR.JEEP_CHEROKEE_2019):
       ret.wheelbase = 2.91  # in meters
       ret.steerRatio = 12.7
-      ret.steerActuatorDelay = 1.0  # in seconds
+      ret.steerActuatorDelay = 0.2  # in seconds
 
     ret.centerToFront = ret.wheelbase * 0.44
 

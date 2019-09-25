@@ -58,7 +58,7 @@ class CarInterface(object):
     ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
     ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.01], [0.005]]     # TODO: tune this
     ret.lateralTuning.pid.kf = 1. / MAX_ANGLE   # MAX Steer angle to normalize FF
-    ret.steerActuatorDelay = 1.0  # Default delay, not measured yet
+    ret.steerActuatorDelay = 0.1  # Default delay, not measured yet
     ret.steerRateCost = 1.0
     ret.centerToFront = ret.wheelbase * 0.44
     tire_stiffness_factor = 0.5328
