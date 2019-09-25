@@ -5,9 +5,10 @@ import os
 
 # HOW TO
 # import this module to where you want to use it, such as from ```selfdrive.controls.lib.curvature_learner import CurvatureLearner```
-# create the object ```self.curvature_offset = CurvatureLearner(debug=True)```
+# create the object ```self.curvature_offset = CurvatureLearner(debug=False)```
 # call the update method ```self.curvature_offset.update(angle_steers - angle_offset, self.LP.d_poly)```
 # The learned curvature offsets will save and load automatically
+# If you still need help, check out how I have it implemented in the devel_curvaturefactorlearner branch
 # by Zorrobyte
 # version 2
 
