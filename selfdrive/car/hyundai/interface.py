@@ -53,7 +53,7 @@ class CarInterface(object):
     ret.safetyModel = car.CarParams.SafetyModel.hyundai
     ret.enableCruise = True  # stock acc
 
-    ret.steerActuatorDelay = 0.1  # Default delay
+    ret.steerActuatorDelay = 1.0  # Default delay
     ret.steerRateCost = 0.5
     tire_stiffness_factor = 1.
 

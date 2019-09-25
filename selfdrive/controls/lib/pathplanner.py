@@ -15,13 +15,6 @@ from selfdrive.controls.lib.curvature_learner import CurvatureLearner
 
 LOG_MPC = os.environ.get('LOG_MPC', False)
 
-
-def calc_states_after_delay(states, v_ego, steer_angle, curvature_factor, steer_ratio, delay):
-  states[0].x = v_ego * delay
-  states[0].psi = v_ego * curvature_factor * math.radians(steer_angle) / steer_ratio * delay
-  return states
-
-
 class PathPlanner(object):
   def __init__(self, CP):
     self.LP = LanePlanner()
@@ -65,10 +58,8 @@ class PathPlanner(object):
       curvfac = self.curvature_offset.update(angle_steers - angle_offset, self.LP.d_poly, v_ego)
     else:
       curvfac = 0.
-    curvature_factor = VM.curvature_factor(v_ego) + curvfac
 
-    # account for actuation delay
-    self.cur_state = calc_states_after_delay(self.cur_state, v_ego, angle_steers - angle_offset, curvature_factor, VM.sR, CP.steerActuatorDelay)
+    curvature_factor = VM.curvature_factor(v_ego) + curvfac
 
     v_ego_mpc = max(v_ego, 5.0)  # avoid mpc roughness due to low speed
     self.libmpc.run_mpc(self.cur_state, self.mpc_solution,
@@ -84,6 +75,8 @@ class PathPlanner(object):
       rate_desired = 0.0
 
     self.cur_state[0].delta = delta_desired
+    self.cur_state[0].x = v_ego
+    self.cur_state[0].psi = v_ego * curvature_factor * math.radians(angle_steers - angle_offset) / VM.sR
 
     self.angle_steers_des_mpc = float(math.degrees(delta_desired * VM.sR) + angle_offset)
 
