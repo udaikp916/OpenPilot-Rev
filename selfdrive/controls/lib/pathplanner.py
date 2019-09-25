@@ -9,8 +9,6 @@ from selfdrive.controls.lib.lateral_mpc import libmpc_py
 from selfdrive.controls.lib.drive_helpers import MPC_COST_LAT
 from selfdrive.controls.lib.lane_planner import LanePlanner
 import selfdrive.messaging as messaging
-import os.path
-import pickle
 from selfdrive.controls.lib.curvature_learner import CurvatureLearner
 
 LOG_MPC = os.environ.get('LOG_MPC', False)
