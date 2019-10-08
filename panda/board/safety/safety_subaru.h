@@ -102,7 +102,7 @@ static int subaru_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   int bus_fwd = -1;
   if (bus_num == 0) {
     bus_fwd = 2;  // Camera CAN
-  }
+  } 
   if (bus_num == 2) {
     // 290 is LKAS for Global Platform
     // 356 is LKAS for outback 2015

@@ -67,9 +67,35 @@ class CarInterface(object):
       ret.steerMaxBP = [0.] # m/s
       ret.steerMaxV = [1.]
 
+    if candidate in [CAR.OUTBACK]:
+      ret.mass = 1568 + STD_CARGO_KG
+      ret.wheelbase = 2.67
+      ret.centerToFront = ret.wheelbase * 0.5
+      ret.steerRatio = 20           # learned, 14 stock
+      tire_stiffness_factor = 1.0
+      ret.steerActuatorDelay = 0.07
+      ret.steerRateCost = 0.7
+      ret.lateralTuning.pid.kf = 0.000043
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 10., 20.], [0., 10., 20.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.01, 0.05, 0.2], [0.003, 0.018, 0.025]]
+      ret.steerMaxBP = [0.] # m/s
+      ret.steerMaxV = [1.]
+
+    if candidate in [CAR.LEGACY]:
+      ret.mass = 1568 + STD_CARGO_KG
+      ret.wheelbase = 2.67
+      ret.centerToFront = ret.wheelbase * 0.5
+      ret.steerRatio = 12.5   #14.5 stock
+      tire_stiffness_factor = 1.0
+      ret.steerActuatorDelay = 0.15
+      ret.lateralTuning.pid.kf = 0.00005
+      ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.1, 0.2], [0.01, 0.02]]
+      ret.steerMaxBP = [0.] # m/s
+      ret.steerMaxV = [1.]
+
     ret.steerControlType = car.CarParams.SteerControlType.torque
     ret.steerRatioRear = 0.
-    # testing tuning
 
     # No long control in subaru
     ret.gasMaxBP = [0.]
@@ -161,6 +187,10 @@ class CarInterface(object):
 
 
     events = []
+    
+    if self.CS.steer_not_allowed:
+      events.append(create_event('steerUnavailable', [ET.NO_ENTRY, ET.IMMEDIATE_DISABLE, ET.PERMANENT]))
+      
     if ret.seatbeltUnlatched:
       events.append(create_event('seatbeltNotLatched', [ET.NO_ENTRY, ET.SOFT_DISABLE]))
 
