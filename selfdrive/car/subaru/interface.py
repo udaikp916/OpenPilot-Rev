@@ -71,7 +71,7 @@ class CarInterface(object):
       ret.mass = 1568 + STD_CARGO_KG
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
-      ret.steerRatio = 20           # learned, 14 stock
+      ret.steerRatio = 14           # learned, 14 stock
       tire_stiffness_factor = 1.0
       ret.steerActuatorDelay = 0.07
       ret.steerRateCost = 0.7
@@ -85,7 +85,7 @@ class CarInterface(object):
       ret.mass = 1568 + STD_CARGO_KG
       ret.wheelbase = 2.67
       ret.centerToFront = ret.wheelbase * 0.5
-      ret.steerRatio = 12.5   #14.5 stock
+      ret.steerRatio = 14.5   #14.5 stock
       tire_stiffness_factor = 1.0
       ret.steerActuatorDelay = 0.15
       ret.lateralTuning.pid.kf = 0.00005
