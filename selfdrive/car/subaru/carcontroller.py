@@ -23,7 +23,7 @@ class CarControllerParams():
       self.STEER_DELTA_DOWN = 60         # torque decrease per refresh
 
 
-class CarController(object):
+class CarController():
   def __init__(self, car_fingerprint):
     self.lkas_active = False
     self.steer_idx = 0
